@@ -1,0 +1,16 @@
+#region Connection to Azure account
+try {
+    $ServicePrincipalID = "sp id"
+    $ServicePrincipalKey = "password"
+    $AzureTenantId = "tenant id"    
+    $SPkey = ConvertTo-SecureString -String $ServicePrincipalKey -AsPlainText -Force
+    Write-Host "Connecting to Azure Account"
+    $Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $ServicePrincipalID, $SPkey
+    Connect-AzAccount -TenantId $AzureTenantId -Credential $Credential -ServicePrincipal -ErrorAction Stop 
+}
+catch {
+    $errorMessage = $_.Exception.Message
+    Write-Error "Connection failed. $errorMessage"
+    throw $_
+}   
+#endregion
