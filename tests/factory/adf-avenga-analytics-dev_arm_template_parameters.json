@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "value": "adf-avenga-analytics-dev"
+        },
+        "dataFactory_properties_globalParameters_KeyVaultName_value": {
+            "value": "kv-avenga-analytics-dev"
+        },
+        "dataFactory_properties_globalParameters_DWHContainerName_value": {
+            "value": "dwhcontainerdev"
+        },
+        "dataFactory_location": {
+            "value": "westeurope"
+        },
+        "dataFactory_identity_type": {
+            "value": "SystemAssigned"
+        }
+    }
+}

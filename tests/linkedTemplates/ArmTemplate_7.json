@@ -1,0 +1,3245 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "adf-avenga-analytics-dev"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_AzureADAllTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Scrambled Group Members",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_AzureADGroupMembers",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/AzureAD"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:21Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_Scramble1C_AllTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Scramble _InfoRg24484 table",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_Scramble1C_InfoRg24484",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Scramble _AccumRg24640 table",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Scramble _InfoRg24484 table",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_Scramble1C_AccumRg24640",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/1C"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:22Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DL_GoogleUsersMain')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Execute PL_DL_GoogleUsers",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_GoogleUsers",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "PL_DL_GoogleCalendarEvents",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Execute PL_DL_GoogleUsers",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DL_GoogleCalendarEvents",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLake"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:20Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_Process')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Refresh Salesforce Schema",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Refresh PL BambooHR SDC Schema",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_RefreshDatabaseSchema",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "SchemaName": "GLO_Salesforce"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Copy Data",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Convert To Array",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_CopyData",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "Tables": {
+                                    "value": "@variables('TablesArr')",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Google Tables",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Data",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_GoogleAllTables",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Refresh Corebase Schema",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Refresh Salesforce Schema",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_RefreshDatabaseSchema",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "SchemaName": "UA_CoreBase_staging_dbo"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Convert To Array",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "Refresh 1C Schema",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "Refresh Projectile Schema",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "TablesArr",
+                            "value": {
+                                "value": "@array(pipeline().parameters.TablesToCopy)",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Refresh 1C Schema",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_RefreshDatabaseSchema",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "SchemaName": "UA_1C_staging_dbo"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled 1C Tables",
+                        "description": "1C table - [UA_1C_staging_dbo].[_InfoRg24484]",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled CorporateUser",
+                                "dependencyConditions": [
+                                    "Completed"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_Scramble1C_AllTables",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Refresh Bullhorn Schema Stage_dbo",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Refresh Corebase Schema",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_RefreshDatabaseSchema",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "SchemaName": "PL_Bullhorn_staging_dbo"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled DE DATEV Tables",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Data",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleDatevAllTables",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled wusr_TBL_ObrotyWKNew",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled CorporateUser",
+                                "dependencyConditions": [
+                                    "Completed"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleWusrTBLObrotyWKNew",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Projectile tables",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Data",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ProjectileAllTables",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Salesforce Tables",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Data",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleSalesforceAllTables",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Corebase Tables",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Data",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleCorebaseAllTables",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Refresh Bullhorn Schema_dbo",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Refresh Bullhorn Schema Stage_dbo",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_RefreshDatabaseSchema",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "SchemaName": "PL_Bullhorn_dbo"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Refresh Projectile Schema",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Refresh Bullhorn Schema_dbo",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_RefreshDatabaseSchema",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "SchemaName": "projectile"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled CorporateUser",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled AzureAD Tables",
+                                "dependencyConditions": [
+                                    "Completed"
+                                ]
+                            },
+                            {
+                                "activity": "Copy Scrambled Corebase Tables",
+                                "dependencyConditions": [
+                                    "Completed"
+                                ]
+                            },
+                            {
+                                "activity": "Copy Scrambled BambooHR Employee",
+                                "dependencyConditions": [
+                                    "Completed"
+                                ]
+                            },
+                            {
+                                "activity": "Copy Scrambled Google Tables",
+                                "dependencyConditions": [
+                                    "Completed"
+                                ]
+                            },
+                            {
+                                "activity": "Copy Scrambled DE DATEV Tables",
+                                "dependencyConditions": [
+                                    "Completed"
+                                ]
+                            },
+                            {
+                                "activity": "Copy Scrambled Projectile tables",
+                                "dependencyConditions": [
+                                    "Completed"
+                                ]
+                            },
+                            {
+                                "activity": "Copy Scrambled Salesforce Tables",
+                                "dependencyConditions": [
+                                    "Completed"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleBullhornCorporateUser",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Refresh DE BambooHR ADACH Schema",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_RefreshDatabaseSchema",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "SchemaName": "DE_BambooHR_ADACH"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Refresh PL BambooHR SDC Schema",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Refresh PL BambooHR AITP Schema",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_RefreshDatabaseSchema",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "SchemaName": "PL_BambooHR_SDC"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Refresh PL BambooHR AITP Schema",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Refresh DE BambooHR ADACH Schema",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_RefreshDatabaseSchema",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "SchemaName": "PL_BambooHR_AITP"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled BambooHR Employee",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Data",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleBambooHRAllTables",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled AzureAD Tables",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Data",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_AzureADAllTables",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "TablesToCopy": {
+                        "type": "string",
+                        "defaultValue": [
+                            {
+                                "schema": "projectile",
+                                "table": "ttimebit"
+                            },
+                            {
+                                "schema": "projectile",
+                                "table": "tworkingtime"
+                            },
+                            {
+                                "schema": "projectile",
+                                "table": "tjob"
+                            },
+                            {
+                                "schema": "projectile",
+                                "table": "agroup"
+                            },
+                            {
+                                "schema": "projectile",
+                                "table": "axref"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_dbo",
+                                "table": "ClientCorporation"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_dbo",
+                                "table": "Candidate"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_dbo",
+                                "table": "ClientContact"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_dbo",
+                                "table": "Lead"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_dbo",
+                                "table": "Opportunity"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_dbo",
+                                "table": "JobOrder"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_dbo",
+                                "table": "Placement"
+                            },
+                            {
+                                "schema": "GLO_Salesforce",
+                                "table": "Contact"
+                            },
+                            {
+                                "schema": "GLO_Salesforce",
+                                "table": "CurrencyType"
+                            },
+                            {
+                                "schema": "GLO_Salesforce",
+                                "table": "OpportunityFieldHistory"
+                            },
+                            {
+                                "schema": "GLO_Salesforce",
+                                "table": "RecordType"
+                            },
+                            {
+                                "schema": "GLO_Salesforce",
+                                "table": "Sales_Team_Member__c"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "TimeReport"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "LanguageReview"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "Visa"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "VisaType"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "Country"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "FreeTimeManagement"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "FreeTimeManagementRequest"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "Calendar"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "ProjectPositionPeriod"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "ProjectPosition"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "Assignment"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "EmployeeCertifications"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "Position"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "EmployeePosition"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "EmployeePositionTiers"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "EmployeeRecordType"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "EmployeeRecordStatus"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "EmployeeEmployment"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "EmployeeCars"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "EmployeeCertifications"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "Technology"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "Department"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "DepartmentTiers"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "DepartmentTierTitles"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "ListItem"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "Branche"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "SOWPosition"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "table": "SysFTMType"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "Appointment"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "AppointmentAttendees"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "Branch"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "BusinessSector"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "Candidate"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CandidateBusinessSectors"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CandidateCategories"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CandidateCertifications"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CandidateEducation"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CandidateEncryptedData"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CandidateReference"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CandidateSecondaryOwners"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CandidateSkills"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CandidateSpecialties"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CandidateWorkHistory"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "Category"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CategoryPrivateLabels"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CategorySkills"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CertificationGroup"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CertificationGroupCertifications"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "ClientContact"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "ClientContactBusinessSectors"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "ClientContactCategories"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "ClientContactSecondaryOwners"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "ClientContactSkills"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "ClientCorporation"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "ClientCorporationCertification"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "ClientCorporationCertificationGroups"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "ClientCorporationCustomObjectInstance"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "ClientCorporationLeads"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "ClientCorporationRequirements"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CorporateUser"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CorporateUserBranches"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CorporateUserDepartments"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "CorporateUserPrivateLabels"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryAppointment"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryCandidate"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryCandidateCertification"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryClientContact"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryClientCorporation"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryClientCorporationCustomObjectInstance"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryCorporateUser"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryJobOrder"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryJobOrderCustomObjectInstance"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryJobSubmission"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryLead"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryOpportunity"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryOpportunityCustomObjectInstance"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryPersonCustomObjectInstance"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryPlacement"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryPlacementCertification"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryPlacementCustomObjectInstance"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "EditHistoryTask"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "FieldMaps"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "JobOrder"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "JobOrderAssignedUsers"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "JobOrderBusinessSectors"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "JobOrderCategories"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "JobOrderCertificationGroups"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "JobOrderCertifications"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "JobOrderCustomObjectInstance"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "JobOrderSkill"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "JobOrderSpecialties"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "JobSubmission"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "Lead"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "LeadAssignedTo"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "LeadCandidates"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "LeadCategories"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "LeadClientContacts"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "LeadSkills"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "LeadSpecialties"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "Note"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "NoteEntity"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "Opportunity"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "OpportunityAssignedUsers"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "OpportunityBusinessSectors"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "OpportunityCertifications"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "OpportunityCustomObjectInstance"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "OpportunitySkills"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "Placement"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "PlacementCertifications"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "PlacementChangeRequest"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "PlacementChangeRequestEncryptedData"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "PlacementCommission"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "PlacementCustomObjectInstance"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "PlacementEncryptedData"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "PrivateLabel"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "Sendout"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "Skill"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "Specialty"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "Tearsheet"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "TearsheetContacts"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "TearsheetJobs"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "TearsheetLeads"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "TearsheetOpportunities"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "UserHousingComplexUnit"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "WorkersCompensation"
+                            },
+                            {
+                                "schema": "PL_Bullhorn_staging_dbo",
+                                "table": "WorkersCompensationRate"
+                            },
+                            {
+                                "schema": "UA_1C_staging_dbo",
+                                "table": "_InfoRg24610"
+                            },
+                            {
+                                "schema": "gsuite",
+                                "table": "GoogleGroups"
+                            },
+                            {
+                                "schema": "GLO_AzureAD",
+                                "table": "AzureGroups"
+                            }
+                        ]
+                    }
+                },
+                "variables": {
+                    "TablesArr": {
+                        "type": "Array"
+                    }
+                },
+                "folder": {
+                    "name": "DataLakeScramble"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:23Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/PL_DLS_Scramble1C_AllTables')]",
+                "[concat(variables('factoryId'), '/pipelines/PL_DLS_AzureADAllTables')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_ResumePauseProcessBacklog')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Resume Database",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_SynapsePauseResume",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "KeyVaultName": {
+                                    "value": "@pipeline().globalParameters.KeyVaultName",
+                                    "type": "Expression"
+                                },
+                                "Action": "resume"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Process Backlog",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Log process start",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_ProcessBacklog",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@activity('Log process start').output.firstRow.ProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Log process start",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "Resume Database",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "SqlDWSource",
+                                "sqlReaderQuery": "DECLARE\n\t@ProcessID INT,\n\t@ProcessTree NVARCHAR(256);\n\nEXEC [dbo].[LogProcessStart] null, 'ADF Backlog Process', @ProcessID OUT, @ProcessTree OUT;\n\nSELECT @ProcessID AS ProcessID, @ProcessTree AS ProcessTree;",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "dbo",
+                                    "TableName": "parameter"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Log process completion",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "Process Backlog",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LogProcessCompletion]",
+                            "storedProcedureParameters": {
+                                "ProcessID": {
+                                    "value": {
+                                        "value": "@int(string(activity('Log process start').output.firstRow.ProcessID))",
+                                        "type": "Expression"
+                                    },
+                                    "type": "Int32"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    },
+                    {
+                        "name": "Log process failure",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "Process Backlog",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LogProcessError]",
+                            "storedProcedureParameters": {
+                                "ErrorMessage": {
+                                    "value": "Error in Data Factory main process.",
+                                    "type": "String"
+                                },
+                                "ProcessID": {
+                                    "value": {
+                                        "value": "@int(string(activity('Log process start').output.firstRow.ProcessID))",
+                                        "type": "Expression"
+                                    },
+                                    "type": "Int32"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    },
+                    {
+                        "name": "Pause Database on completion",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Log process completion",
+                                "dependencyConditions": [
+                                    "Completed"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_SynapsePauseResume",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "KeyVaultName": {
+                                    "value": "@pipeline().globalParameters.KeyVaultName",
+                                    "type": "Expression"
+                                },
+                                "Action": "pause"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Pause Database on failure",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Log process failure",
+                                "dependencyConditions": [
+                                    "Completed"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_SynapsePauseResume",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "KeyVaultName": {
+                                    "value": "@pipeline().globalParameters.KeyVaultName",
+                                    "type": "Expression"
+                                },
+                                "Action": "pause"
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:21Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Process_Stage')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Process Bullhorn Stage Tables",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_Bullhorn_AllTables",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Process Projectile Stage Tables",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_Projectile_AllTables",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Refresh Stage Tables",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_SimpleCopy",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "TablesToCopy": {
+                                    "value": "@variables('StageTablesToCopy')",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Process Manually Inputed Tables",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_MI_AllTables",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Process Corebase Stage Tables",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_Corebase_AllTables",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Process BambooHR Stage Tables",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_SimpleCopy",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "TablesToCopy": {
+                                    "value": "@variables('BambooHRTablesToCopy')",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Process Salesforce Stage Tables",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_Salesforce_AllTables",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Process GSuite Stage Tables",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_GSuite_AllTables",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Process 1C Stage Tables",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_1C_AllTables",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Process Asseco Stage Tables",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_Asseco_AllTables",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "variables": {
+                    "StageTablesToCopy": {
+                        "type": "Array",
+                        "defaultValue": [
+                            {
+                                "schema": "UA_1C_staging_dbo",
+                                "source_table": "_InfoRg24610",
+                                "dest_table": "OneCInfoRg24610"
+                            },
+                            {
+                                "schema": "GLO_Salesforce",
+                                "source_table": "ForecastingQuota",
+                                "dest_table": "SalesforceForecastingQuota"
+                            },
+                            {
+                                "schema": "GLO_Salesforce",
+                                "source_table": "Forecast__History",
+                                "dest_table": "SalesforceForecastHistory"
+                            },
+                            {
+                                "schema": "GLO_Salesforce",
+                                "source_table": "Project_Team_Member__c",
+                                "dest_table": "SalesforceProjectTeamMember"
+                            },
+                            {
+                                "schema": "GLO_Salesforce",
+                                "source_table": "Sales_Team_Member__c",
+                                "dest_table": "SalesforceSalesTeamMember"
+                            },
+                            {
+                                "schema": "DE_datalakesftp",
+                                "source_table": "Export_DATA_RAW_2020_DE",
+                                "dest_table": "DatalakeSFTPExportDataRaw2020DE"
+                            },
+                            {
+                                "schema": "DE_datalakesftp",
+                                "source_table": "RAW_DATEV_ACC_AVD_2021",
+                                "dest_table": "DatalakeSFTPRawDatevAccAvd2021"
+                            },
+                            {
+                                "schema": "DE_datalakesftp",
+                                "source_table": "RAW_DATEV_ACC_AVG_2021",
+                                "dest_table": "DatalakeSFTPRawDatevAccAvg2021"
+                            },
+                            {
+                                "schema": "GLO_AzureAD",
+                                "source_table": "AzureGroups",
+                                "dest_table": "AzureADGroups"
+                            },
+                            {
+                                "schema": "GLO_AzureAD",
+                                "source_table": "AzureGroupMembers",
+                                "dest_table": "AzureADGroupMembers"
+                            },
+                            {
+                                "schema": "UA_1C_staging_dbo",
+                                "source_table": "_AccumRg24640",
+                                "dest_table": "OneCProjectForecast_AccumRg24640"
+                            },
+                            {
+                                "schema": "projectile",
+                                "source_table": "temployee",
+                                "dest_table": "ProjectileTEmployee"
+                            },
+                            {
+                                "schema": "projectile",
+                                "source_table": "tworkingtime",
+                                "dest_table": "ProjectileTWorkingTime"
+                            }
+                        ]
+                    },
+                    "BambooHRTablesToCopy": {
+                        "type": "Array",
+                        "defaultValue": [
+                            {
+                                "schema": "DE_BambooHR_ADACH",
+                                "source_table": "Employees",
+                                "dest_table": "BambooHRADACHEmployee"
+                            },
+                            {
+                                "schema": "DE_BambooHR_ADACH",
+                                "source_table": "TiersTitles",
+                                "dest_table": "BambooHRADACHTierTitle"
+                            },
+                            {
+                                "schema": "DE_BambooHR_ADACH",
+                                "source_table": "EmployeeEmploymentStatuses",
+                                "dest_table": "BambooHRADACHEmployeeEmploymentStatuses"
+                            },
+                            {
+                                "schema": "PL_BambooHR_SDC",
+                                "source_table": "Employees",
+                                "dest_table": "BambooHRSDCEmployee"
+                            },
+                            {
+                                "schema": "PL_BambooHR_SDC",
+                                "source_table": "TiersTitles",
+                                "dest_table": "BambooHRSDCTierTitle"
+                            },
+                            {
+                                "schema": "PL_BambooHR_AITP",
+                                "source_table": "Employees",
+                                "dest_table": "BambooHRAITPEmployee"
+                            },
+                            {
+                                "schema": "PL_BambooHR_AITP",
+                                "source_table": "TiersTitles",
+                                "dest_table": "BambooHRAITPTierTitle"
+                            }
+                        ]
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:22Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/TriggerScrambleDevProcess')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "runtimeState": "Stopped",
+                "pipelines": [
+                    {
+                        "pipelineReference": {
+                            "referenceName": "PL_DLS_Process",
+                            "type": "PipelineReference"
+                        },
+                        "parameters": {}
+                    }
+                ],
+                "type": "ScheduleTrigger",
+                "typeProperties": {
+                    "recurrence": {
+                        "frequency": "Week",
+                        "interval": 1,
+                        "startTime": "2020-09-01T14:34:00Z",
+                        "timeZone": "UTC",
+                        "schedule": {
+                            "minutes": [
+                                0
+                            ],
+                            "hours": [
+                                0
+                            ],
+                            "weekDays": [
+                                "Monday"
+                            ]
+                        }
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/PL_DLS_Process')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Process')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Employee Dimension",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Forex Currency Dimension",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Dim_Employee",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Process AAS EmployeeDistribution Model",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Set DWHLastRefresh parameter",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ProcessAnalysisServices",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "DatabaseName": "EmployeeDistribution",
+                                "KeyVaultName": {
+                                    "value": "@pipeline().globalParameters.KeyVaultName",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Customer Dimension",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Employee Dimension",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Dim_Customer",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Opportunity Dimension",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Customer Dimension",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Dim_Opportunity",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Fact OpportunityForecast",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Project Dimension",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Fact_OpportunityForecast",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Currency Dimension",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Country Dimension",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Dim_Currency",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Process AAS Opportunity Model",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Set DWHLastRefresh parameter",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ProcessAnalysisServices",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "DatabaseName": "Opportunity",
+                                "KeyVaultName": {
+                                    "value": "@pipeline().globalParameters.KeyVaultName",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Forex Currency Dimension",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Currency Dimension",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "Time Reporting Type Dimension",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Dim_ForexCurrency",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Project Dimension",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Opportunity Dimension",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Dim_Project",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Fact BudgetForecast",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Fact OpportunityForecast",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Fact_BudgetForecast",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Fact Revenue",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Fact BudgetForecast",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Fact_Revenue",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Process AAS Sales Model",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Set DWHLastRefresh parameter",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ProcessAnalysisServices",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "DatabaseName": "Sales",
+                                "KeyVaultName": {
+                                    "value": "@pipeline().globalParameters.KeyVaultName",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Country Dimension",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Load Mapping OpportunityProject",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "Competency Matrix English Skills",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Dim_Country",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Load Mapping OpportunityProject",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Process All Stage Tables",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_MappingOpportunityProject",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Fact Project Forecast",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Fact Revenue",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "Fact Time Reporting",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "Fact Calendar Event",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Fact_ProjectForecast",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Clear Stage Tables",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "Set DWHLastRefresh parameter",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[stage].[CleanStageHistory]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    },
+                    {
+                        "name": "Load UserAccess",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "Fact Project Forecast",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadUserReportAccess]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    },
+                    {
+                        "name": "Set DWHLastRefresh parameter",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "Load Stage Tables Refresh Log",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "Load UserAccess",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "Execute Check DimensionConsistency",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "SqlDWSource",
+                                "sqlReaderQuery": "IF EXISTS(SELECT TOP 1 1 FROM [dbo].[Parameter] WHERE [ParameterName] = 'DWHLastRefresh')\n\tUPDATE [dbo].[Parameter]\n\tSET [ParameterValue] = CONVERT(NVARCHAR, GETDATE(), 20)\n\tWHERE [ParameterName] = 'DWHLastRefresh'\nELSE \n\tINSERT INTO [dbo].[Parameter] ([ParameterName], [ParameterValue])\n\tSELECT\n\t\t[ParameterName] = 'DWHLastRefresh'\n\t\t,[ParameterValue] = CONVERT(NVARCHAR, GETDATE(), 20);\n\nSELECT [ParameterValue]\nFROM [dbo].[Parameter]\nWHERE [ParameterName] = 'DWHLastRefresh';",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "dbo",
+                                    "TableName": "Parameter"
+                                }
+                            },
+                            "firstRowOnly": false
+                        }
+                    },
+                    {
+                        "name": "Load Stage Tables Refresh Log",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "Fact Project Forecast",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadStageRefreshLog]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    },
+                    {
+                        "name": "Upload Backlog DE into Google Sheets",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Fact Project Forecast",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_GS_UploadBacklogDE",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "MonthBack": 0
+                            }
+                        }
+                    },
+                    {
+                        "name": "Execute Check DimensionConsistency",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "Fact Project Forecast",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[CheckDimensionConsistency]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    },
+                    {
+                        "name": "Process All Stage Tables",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Process_Stage",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Time Reporting Type Dimension",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Country Dimension",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Dim_TimeReportingType",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Fact Time Reporting",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Fact Assignment",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Fact_TimeReporting",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Fact Assignment",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Fact Language Review",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Fact_Assignment",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Fact Calendar Event",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Fact Employee Feedback",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Fact_CalendarEvent",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Fact Employee Feedback",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Fact Employee Certification",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Fact_EmployeeFeedback",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Employee Kid Dimension",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Employee Visa Dimension",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Dim_EmployeeKid",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Employee Car Dimension",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Employee Dimension",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Dim_EmployeeCar",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Fact Employee Certification",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Employee Kid Dimension",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Fact_EmployeeCertification",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Employee Passport Dimension",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Employee Car Dimension",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Dim_EmployeePassport",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Employee Visa Dimension",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Employee Passport Dimension",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Dim_EmployeeVisa",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Process AAS HRAvengaUA Model",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Set DWHLastRefresh parameter",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ProcessAnalysisServices",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "DatabaseName": "HRAvengaUA",
+                                "KeyVaultName": {
+                                    "value": "@pipeline().globalParameters.KeyVaultName",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Fact Language Review",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Project Dimension",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Fact_LanguageReview",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Competency Matrix English Skills",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Process All Stage Tables",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_CompetencyMatrixEnglishSkills",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Process AAS Resourcing Model",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Set DWHLastRefresh parameter",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ProcessAnalysisServices",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "DatabaseName": "Resourcing",
+                                "KeyVaultName": {
+                                    "value": "@pipeline().globalParameters.KeyVaultName",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "variables": {
+                    "StageTablesToCopy": {
+                        "type": "Array",
+                        "defaultValue": [
+                            {
+                                "schema": "UA_1C_staging_dbo",
+                                "source_table": "_InfoRg24610",
+                                "dest_table": "OneCInfoRg24610"
+                            },
+                            {
+                                "schema": "GLO_Salesforce",
+                                "source_table": "ForecastingQuota",
+                                "dest_table": "SalesforceForecastingQuota"
+                            },
+                            {
+                                "schema": "GLO_Salesforce",
+                                "source_table": "Forecast__History",
+                                "dest_table": "SalesforceForecastHistory"
+                            },
+                            {
+                                "schema": "GLO_Salesforce",
+                                "source_table": "Project_Team_Member__c",
+                                "dest_table": "SalesforceProjectTeamMember"
+                            },
+                            {
+                                "schema": "GLO_Salesforce",
+                                "source_table": "Sales_Team_Member__c",
+                                "dest_table": "SalesforceSalesTeamMember"
+                            },
+                            {
+                                "schema": "DE_datalakesftp",
+                                "source_table": "Export_DATA_RAW_2020_DE",
+                                "dest_table": "DatalakeSFTPExportDataRaw2020DE"
+                            },
+                            {
+                                "schema": "DE_datalakesftp",
+                                "source_table": "RAW_DATEV_ACC_AVD_2021",
+                                "dest_table": "DatalakeSFTPRawDatevAccAvd2021"
+                            },
+                            {
+                                "schema": "DE_datalakesftp",
+                                "source_table": "RAW_DATEV_ACC_AVG_2021",
+                                "dest_table": "DatalakeSFTPRawDatevAccAvg2021"
+                            },
+                            {
+                                "schema": "GLO_AzureAD",
+                                "source_table": "AzureGroups",
+                                "dest_table": "AzureADGroups"
+                            },
+                            {
+                                "schema": "GLO_AzureAD",
+                                "source_table": "AzureGroupMembers",
+                                "dest_table": "AzureADGroupMembers"
+                            },
+                            {
+                                "schema": "UA_1C_staging_dbo",
+                                "source_table": "_AccumRg24640",
+                                "dest_table": "OneCProjectForecast_AccumRg24640"
+                            }
+                        ]
+                    },
+                    "BambooHRTablesToCopy": {
+                        "type": "Array",
+                        "defaultValue": [
+                            {
+                                "schema": "DE_BambooHR_ADACH",
+                                "source_table": "Employees",
+                                "dest_table": "BambooHRADACHEmployee"
+                            },
+                            {
+                                "schema": "DE_BambooHR_ADACH",
+                                "source_table": "TiersTitles",
+                                "dest_table": "BambooHRADACHTierTitle"
+                            },
+                            {
+                                "schema": "PL_BambooHR_SDC",
+                                "source_table": "Employees",
+                                "dest_table": "BambooHRSDCEmployee"
+                            },
+                            {
+                                "schema": "PL_BambooHR_SDC",
+                                "source_table": "TiersTitles",
+                                "dest_table": "BambooHRSDCTierTitle"
+                            },
+                            {
+                                "schema": "PL_BambooHR_AITP",
+                                "source_table": "Employees",
+                                "dest_table": "BambooHRAITPEmployee"
+                            },
+                            {
+                                "schema": "PL_BambooHR_AITP",
+                                "source_table": "TiersTitles",
+                                "dest_table": "BambooHRAITPTierTitle"
+                            }
+                        ]
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:24Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/PL_ADWH_Process_Stage')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_ResumePauseProcess')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Process DWH",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Log process start",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Process",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@activity('Log process start').output.firstRow.ProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Resume Database",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_SynapsePauseResume",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "KeyVaultName": {
+                                    "value": "@pipeline().globalParameters.KeyVaultName",
+                                    "type": "Expression"
+                                },
+                                "Action": "resume"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Log process start",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "Resume Database",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "SqlDWSource",
+                                "sqlReaderQuery": "DECLARE\n\t@ProcessID INT,\n\t@ProcessTree NVARCHAR(256);\n\nEXEC [dbo].[LogProcessStart] null, 'ADF Main Process', @ProcessID OUT, @ProcessTree OUT;\n\nSELECT @ProcessID AS ProcessID, @ProcessTree AS ProcessTree;",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "dbo",
+                                    "TableName": "parameter"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Log process completion",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "Process DWH",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LogProcessCompletion]",
+                            "storedProcedureParameters": {
+                                "ProcessID": {
+                                    "value": {
+                                        "value": "@int(string(activity('Log process start').output.firstRow.ProcessID))",
+                                        "type": "Expression"
+                                    },
+                                    "type": "Int32"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    },
+                    {
+                        "name": "Log process failure",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "Process DWH",
+                                "dependencyConditions": [
+                                    "Failed"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LogProcessError]",
+                            "storedProcedureParameters": {
+                                "ErrorMessage": {
+                                    "value": "Error in Data Factory main process.",
+                                    "type": "String"
+                                },
+                                "ProcessID": {
+                                    "value": {
+                                        "value": "@int(string(activity('Log process start').output.firstRow.ProcessID))",
+                                        "type": "Expression"
+                                    },
+                                    "type": "Int32"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    },
+                    {
+                        "name": "Pause Database",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Process AAS EmployeeDistribution Model",
+                                "dependencyConditions": [
+                                    "Completed"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_SynapsePauseResume",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "KeyVaultName": {
+                                    "value": "@pipeline().globalParameters.KeyVaultName",
+                                    "type": "Expression"
+                                },
+                                "Action": "pause"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Process AAS EmployeeDistribution Model",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Log process completion",
+                                "dependencyConditions": [
+                                    "Succeeded",
+                                    "Skipped"
+                                ]
+                            },
+                            {
+                                "activity": "Log process failure",
+                                "dependencyConditions": [
+                                    "Succeeded",
+                                    "Skipped"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ProcessAnalysisServices",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "DatabaseName": "EmployeeDistribution",
+                                "KeyVaultName": {
+                                    "value": "@pipeline().globalParameters.KeyVaultName",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:25Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/PL_ADWH_Process')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/TriggerADWHMainProcess')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "runtimeState": "Started",
+                "pipelines": [
+                    {
+                        "pipelineReference": {
+                            "referenceName": "PL_ADWH_ResumePauseProcess",
+                            "type": "PipelineReference"
+                        },
+                        "parameters": {}
+                    }
+                ],
+                "type": "ScheduleTrigger",
+                "typeProperties": {
+                    "recurrence": {
+                        "frequency": "Day",
+                        "interval": 1,
+                        "startTime": "2020-07-31T14:36:00Z",
+                        "timeZone": "UTC",
+                        "schedule": {
+                            "minutes": [
+                                0
+                            ],
+                            "hours": [
+                                7
+                            ]
+                        }
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/PL_ADWH_ResumePauseProcess')]"
+            ]
+        }
+    ]
+}

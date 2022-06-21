@@ -1,0 +1,2165 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "adf-avenga-analytics-dev"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_ScrambleCorebaseEmployeeKids')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Corebase EmployeeKids",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": ";WITH cte_get_randomized_names AS (\n\tSELECT [Id]\n\t\t  ,[Name]\n\t\t  ,[Birthdate]\n\t\t  ,[EmployeeId]\n\t\t  ,ROW_NUMBER () OVER(ORDER BY [Id]) AS original_seq_id\n\t\t  ,ROW_NUMBER () OVER(ORDER BY NEWID()) AS random_id\n\tFROM [UA_CoreBase_staging_dbo].[EmployeeKids]\n)\nSELECT grn1.[Id]\n\t  ,grn2.[Name]\n\t  ,grn1.[Birthdate]\n\t  ,grn1.[EmployeeId]\nFROM cte_get_randomized_names AS grn1\nINNER JOIN cte_get_randomized_names AS grn2 ON grn1.original_seq_id = grn2.random_id;",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "TRUNCATE TABLE [UA_CoreBase_staging_dbo].[EmployeeKids];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DLS_DatalakeRep",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "UA_CoreBase_staging_dbo",
+                                    "TableName": "EmployeeKids"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_DLD_DatalakeDev",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "UA_CoreBase_staging_dbo",
+                                    "TableName": "EmployeeKids"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Corebase"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:18Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_ScrambleCorebasePassport')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Corebase Passport",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT [Id]\n      ,[Biometrical]\n      ,[ExpirationDate]\n      ,[EmployeeId]\n      ,[Number] = CONVERT(NVARCHAR(20), HashBytes('MD5', [Number]), 2)\n      ,[CountryId]\n      ,[CreatedOn]\n      ,[CreatedBy]\n      ,[ModifiedOn]\n      ,[ModifiedBy]\n      ,[DeletedOn]\n      ,[AttachmentId]\nFROM [UA_CoreBase_staging_dbo].[Passport]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "TRUNCATE TABLE [UA_CoreBase_staging_dbo].[Passport];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DLS_DatalakeRep",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "UA_CoreBase_staging_dbo",
+                                    "TableName": "Passport"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_DLD_DatalakeDev",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "UA_CoreBase_staging_dbo",
+                                    "TableName": "Passport"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Corebase"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_CompetencyMatrixEnglishSkills')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Execute Logic App",
+                        "type": "WebActivity",
+                        "dependsOn": [
+                            {
+                                "activity": "Get_Logic_App_URL",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "Get_Google_Sheet_ID",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@activity('Get_Logic_App_URL').output.value",
+                                "type": "Expression"
+                            },
+                            "method": "POST",
+                            "headers": {},
+                            "body": {
+                                "value": "@concat('{\"googleSheetID\":\"', activity('Get_Google_Sheet_ID').output.value, '\",\"storageFolder\":\"CompetencyMatrixEnglishSkills\",\t\"sheetList\": [\"Sheet1\"]}')",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Get_Logic_App_URL",
+                        "description": "Get google service account private key",
+                        "type": "WebActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://', pipeline().globalParameters.KeyVaultName, '.vault.azure.net/secrets/LogicAppReadGoogleSheetsURL?api-version=7.0')",
+                                "type": "Expression"
+                            },
+                            "method": "GET",
+                            "headers": {},
+                            "authentication": {
+                                "type": "MSI",
+                                "resource": "https://vault.azure.net"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Get_Google_Sheet_ID",
+                        "description": "Get google service account private key",
+                        "type": "WebActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://', pipeline().globalParameters.KeyVaultName, '.vault.azure.net/secrets/GoogleSheetIDCompetencyMatrixEnglishSkills?api-version=7.0')",
+                                "type": "Expression"
+                            },
+                            "method": "GET",
+                            "headers": {},
+                            "authentication": {
+                                "type": "MSI",
+                                "resource": "https://vault.azure.net"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Wait 60 seconds",
+                        "type": "Wait",
+                        "dependsOn": [
+                            {
+                                "activity": "Execute Logic App",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "waitTimeInSeconds": 60
+                        }
+                    },
+                    {
+                        "name": "Copy Competency Matrix English Skills",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "Wait 60 seconds",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "DelimitedTextSource",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSReadSettings",
+                                    "maxConcurrentConnections": 0,
+                                    "recursive": false,
+                                    "wildcardFolderPath": "Stage/CSV/CompetencyMatrixEnglishSkills",
+                                    "wildcardFileName": "CompetencyMatrixEnglishSkills_*",
+                                    "enablePartitionDiscovery": false
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextReadSettings"
+                                }
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "TRUNCATE TABLE [stage].[CompetencyMatrixEnglishSkills]",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "name": "Technology",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "Technology",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Skill_x0020_",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "Skill",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Tier_x0020_1",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "Tier1",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Tier_x0020_2",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "Tier2",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Tier_x0020_3",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "Tier3",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Tier_x0020_4",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "Tier4",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Tier_x0020_5",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "Tier5",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Tier_x0020_6",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "Tier6",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Tier_x0020_7",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "Tier7",
+                                            "type": "String"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_ADLS_CSVFile",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "Container": {
+                                        "value": "@pipeline().globalParameters.DWHContainerName",
+                                        "type": "Expression"
+                                    },
+                                    "Path": "Stage/CSV/CompetencyMatrixEnglishSkills",
+                                    "FileName": "CompetencyMatrixEnglishSkills_*"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "CompetencyMatrixEnglishSkills"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Trim whitespaces in stage",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Competency Matrix English Skills",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "SqlDWSource",
+                                "sqlReaderQuery": "UPDATE [stage].[CompetencyMatrixEnglishSkills]\nSET [Technology] = TRIM([Technology]),\n    [Skill] = TRIM([Skill]),\n    [Tier1] = TRIM([Tier1]),\n    [Tier2] = TRIM([Tier2]),\n    [Tier3] = TRIM([Tier3]),\n    [Tier4] = TRIM([Tier4]),\n    [Tier5] = TRIM([Tier5]),\n    [Tier6] = TRIM([Tier6]),\n    [Tier7] = TRIM([Tier7])\n\n\nSELECT *\nFROM [stage].[CompetencyMatrixEnglishSkills]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "CompetencyMatrixEnglishSkills"
+                                }
+                            },
+                            "firstRowOnly": false
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/ManualInput"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:20Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_ScrambleADACHEmployeeEmploymentStatus')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy DE ADACH Employee Employment Status",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT\n      [id]\n      ,[employmentHistoryStatus]\n      ,[workEmail] =\n\t\tCASE WHEN COALESCE([workEmail], '') = ''\n\t\t\t\tTHEN [workEmail]\n\t\t\tWHEN CHARINDEX('@', [workEmail]) = 0\n\t\t\t\tTHEN CONCAT(CONVERT(NVARCHAR(32), HashBytes('MD5', LOWER([workEmail])), 2), '@avenga.com.dev')\n\t\t\tELSE CONCAT(CONVERT(NVARCHAR(32), HashBytes('MD5', LEFT(LOWER([workEmail]), CHARINDEX('@', [workEmail]) - 1)), 2),\n\t\t\t\t\tCASE WHEN RIGHT([workEmail], LEN([workEmail]) - CHARINDEX('@', [workEmail])) = 'avenga.com' \n\t\t\t\t\t\t\tTHEN '@avenga.com.dev'\n\t\t\t\t\t\tELSE RIGHT([workEmail], LEN([workEmail]) - CHARINDEX('@', [workEmail]) + 1)\n\t\t\t\t\tEND) \n\t\tEND\n  FROM [DE_BambooHR_ADACH].[EmployeeEmploymentStatuses]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "TRUNCATE TABLE [DE_BambooHR_ADACH].[EmployeeEmploymentStatuses];",
+                                "writeBehavior": "insert",
+                                "sqlWriterUseTableLock": false,
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DLS_DatalakeRep",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "DE_BambooHR_ADACH",
+                                    "TableName": "EmployeeEmploymentStatuses"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_DLD_DatalakeDev",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "DE_BambooHR_ADACH",
+                                    "TableName": "EmployeeEmploymentStatuses"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/BambooHR"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:18Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Dim_Employee')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Employee Dimension",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadEmployee]",
+                            "storedProcedureParameters": {
+                                "EffectiveDate": {
+                                    "value": null,
+                                    "type": "DateTime"
+                                },
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    },
+                    {
+                        "name": "Export to DataLake Storage",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Load Employee Dimension",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADLS_Employee",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:22Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_Bullhorn_AllTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "PL_ADWH_Stage_BullhornClientCorporation",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_BullhornClientCorporation",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "PL_ADWH_Stage_BullhornClientContact",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_BullhornClientContact",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "PL_ADWH_Stage_BullhornCandidate",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_BullhornCandidate",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "PL_ADWH_Stage_BullhornJobOrder",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_BullhornJobOrder",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "PL_ADWH_Stage_BullhornLead",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_BullhornLead",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "PL_ADWH_Stage_BullhornOpportunity",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_BullhornOpportunity",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "PL_ADWH_Stage_BullhornPlacement",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_BullhornPlacement",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "PL_ADWH_Stage_BullhornCorporateUser",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_BullhornCorporateUser",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Bullhorn"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:21Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_Projectile_AllTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "PL_ADWH_Stage_Projectile_TimeBit",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_Projectile_TimeBit",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "PL_ADWH_Stage_Projectile_Project",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_Projectile_Project",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "PL_ADWH_Stage_Projectile_Customer",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_Projectile_Customer",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "PL_ADWH_Stage_Projectile_Job",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_Projectile_Job",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "PL_ADWH_Stage_Projectile_ProjectManager",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_Projectile_ProjectManager",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Projecttile"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:21Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_ScrambleDatevAllTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Scramble Export_DATA_RAW_2020_DE",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleExportDATARAW2020DE",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Scramble RAW_DATEV_ACC_AVD_2021",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Scramble Export_DATA_RAW_2020_DE",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleRawDatevAccAvd2021",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Scramble RAW_DATEV_ACC_AVG_2021",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Scramble RAW_DATEV_ACC_AVD_2021",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleRawDatevAccAvg2021",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Datev"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:21Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_GoogleAllTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Scrambled Google Users",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_GoogleUsers",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Group Members",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled Google Users",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_GoogleGroupMembers",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Calendar Events",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled Group Members",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_GoogleCalendarEvents",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Google"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:20Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_ProjectileAllTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Scrambled Projectile Auser",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleAuser",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Projectile Tcustomer",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleTcustomer",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Projectile Tproject",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleTproject",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Projectile Temployee",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleTemployee",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Projectile"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:21Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_MI_AllTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Stage CutomerMappingMI",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_MIBullhornCustomerMapping",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Load Stage ProjectForecastMI",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_MIProjectForecast",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Load Stage Competency Matrix English Skills",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_CompetencyMatrixEnglishSkills",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/ManualInput"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:21Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/PL_ADWH_Stage_CompetencyMatrixEnglishSkills')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_Salesforce_AllTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "PL_ADWH_Stage_Salesforce Account",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_SalesforceAccount",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "PL_ADWH_Stage_Salesforce CurrencyType",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_SalesforceCurrencyType",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "PL_ADWH_Stage_Salesforce Forecast__c",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_SalesforceForecast",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "PL_ADWH_Stage_Salesforce Opportunity",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_SalesforceOpportunity",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "PL_ADWH_Stage_Salesforce RecordType",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_SalesforceRecordType",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "PL_ADWH_Stage_Salesforce User",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_SalesforceUser",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Salesforce"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:21Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_Corebase_AllTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Corebase Project",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_CorebaseProject",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Corebase Employee Data",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_CorebaseEmployeeData",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Corebase FreeTimeManagement",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Corebase Stage Tables",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_CorebaseFreeTimeManagement",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "MonthBack": 2
+                            }
+                        }
+                    },
+                    {
+                        "name": "Copy Corebase Stage Tables",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_SimpleCopy",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "TablesToCopy": {
+                                    "value": "@variables('CorebaseTablesToCopy')",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Copy Corebase TimeReport",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_CorebaseTimeReport",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "MonthBack": 2
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "variables": {
+                    "CorebaseTablesToCopy": {
+                        "type": "Array",
+                        "defaultValue": [
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "EmployeeRecord",
+                                "dest_table": "CorebaseEmployeeRecord"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "Assignment",
+                                "dest_table": "CorebaseAssignment"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "Client",
+                                "dest_table": "CorebaseClient"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "Calendar",
+                                "dest_table": "CorebaseCalendar"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "EmployeeEmployment",
+                                "dest_table": "CorebaseEmployeeEmployment"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "FreeTimeManagementRequest",
+                                "dest_table": "CorebaseFreeTimeManagementRequest"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "ProjectPositionPeriod",
+                                "dest_table": "CorebaseProjectPositionPeriod"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "ProjectPosition",
+                                "dest_table": "CorebaseProjectPosition"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "SOWPosition",
+                                "dest_table": "CorebaseSOWPosition"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "SysFTMType",
+                                "dest_table": "CorebaseSysFTMType"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "EmployeeRecordType",
+                                "dest_table": "CorebaseEmployeeRecordType"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "EmployeeRecordStatus",
+                                "dest_table": "CorebaseEmployeeRecordStatus"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "EmployeeCars",
+                                "dest_table": "CorebaseEmployeeCars"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "EmployeeKids",
+                                "dest_table": "CorebaseEmployeeKids"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "EmployeeCertifications",
+                                "dest_table": "CorebaseEmployeeCertifications"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "Visa",
+                                "dest_table": "CorebaseVisa"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "VisaType",
+                                "dest_table": "CorebaseVisaType"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "Passport",
+                                "dest_table": "CorebasePassport"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "Country",
+                                "dest_table": "CorebaseCountry"
+                            },
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "LanguageReview",
+                                "dest_table": "CorebaseLanguageReview"
+                            }
+                        ]
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Corebase"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:21Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_1C_AllTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "PL_ADWH_Stage_1C InfoRg24484",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_1C_InfoRg24484",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/1C"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:20Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_GSuite_AllTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Stage GoogleUsers",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_GoogleUsers",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Stage GoogleCalendarEvents",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Stage GoogleUsers",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_SimpleCopy",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "TablesToCopy": {
+                                    "value": "@variables('GoogleTables')",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "variables": {
+                    "GoogleTables": {
+                        "type": "Array",
+                        "defaultValue": [
+                            {
+                                "schema": "gsuite",
+                                "source_table": "GoogleCalendarEvents",
+                                "dest_table": "GoogleCalendarEvents"
+                            }
+                        ]
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/GSuite"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:21Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_Asseco_AllTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Asseco wusr_TBL ObrotyWKNew",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_Asseco_wusr_TBL_ObrotyWKNew",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Asseco"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:21Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_ProcessBacklog')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Fact Project Forecast",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Read Google Sheets",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Fact_ProjectForecast",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "LogProcessTree": {
+                                    "value": "@pipeline().parameters.LogProcessTree",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Process AAS Sales Model",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Fact Project Forecast",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ProcessAnalysisServices",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "DatabaseName": "Sales",
+                                "KeyVaultName": {
+                                    "value": "@pipeline().globalParameters.KeyVaultName",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Upload Backlog DE into Google Sheets",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Fact Project Forecast",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_GS_UploadBacklogDE",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {
+                                "MonthBack": 0
+                            }
+                        }
+                    },
+                    {
+                        "name": "Read Google Sheets",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_ADWH_Stage_MIProjectForecast",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:20Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_ScrambleBambooHRAllTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Scrambled PL AITP Employee",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleAITPEmployee",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled PL SDC Employee",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled PL AITP Employee",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleSDCEmployee",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled DE ADACH Employee",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled PL SDC Employee",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleADACHEmployee",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled DE ADACH TierTitle",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled DE ADACH Employee",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleADACHTierTitle",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled PL AITP TierTitle",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled DE ADACH Employment Status",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleAITPTierTitle",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled PL SDC TierTitle",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled PL AITP TierTitle",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleSDCTierTitle",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled DE ADACH Employment Status",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled DE ADACH TierTitle",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleADACHEmployeeEmploymentStatus",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/BambooHR"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:21Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/PL_DLS_ScrambleADACHEmployeeEmploymentStatus')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_ScrambleCorebaseAllTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Scrambled Corebase Client",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleCorebaseClient",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Corebase Project",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled Corebase Client",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleCorebaseProject",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Corebase Employee",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled Corebase Project",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleCorebaseEmployee",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Corebase EmployeeRecord",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled Corebase Employee",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleCorebaseEmployeeRecord",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Corebase EmployeeKids",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled Corebase EmployeeRecord",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleCorebaseEmployeeKids",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Passport",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleCorebasePassport",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Corebase"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:21Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/PL_DLS_ScrambleCorebaseEmployeeKids')]",
+                "[concat(variables('factoryId'), '/pipelines/PL_DLS_ScrambleCorebasePassport')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_ScrambleSalesforceAllTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Scrambled Salesforce User",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleSalesforceUser",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Salesforce Account",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled Salesforce User",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleSalesforceAccount",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Salesforce Opportunity",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled Salesforce Account",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleSalesforceOpportunity",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Salesforce Forecast__c",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled Salesforce Opportunity",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleSalesforceForecast__c",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Forecasting Quota",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled Salesforce Forecast__c",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleSalesforceForecastingQuota",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Project Team Member",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled Forecasting Quota",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleSalesforceProjectTeamMember",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    },
+                    {
+                        "name": "Copy Scrambled Forecast History",
+                        "description": "",
+                        "type": "ExecutePipeline",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy Scrambled Project Team Member",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "pipeline": {
+                                "referenceName": "PL_DLS_ScrambleSalesforceForecastHistory",
+                                "type": "PipelineReference"
+                            },
+                            "waitOnCompletion": true,
+                            "parameters": {}
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Salesforce"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:22Z"
+            },
+            "dependsOn": []
+        }
+    ]
+}

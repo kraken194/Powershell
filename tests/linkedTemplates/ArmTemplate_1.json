@@ -1,0 +1,1188 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "adf-avenga-analytics-dev"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_DL_Database')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_ASQL_DataLake",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "SchemaName": {
+                        "type": "string"
+                    },
+                    "TableName": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "DataLake"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [],
+                "typeProperties": {
+                    "schema": {
+                        "value": "@dataset().SchemaName",
+                        "type": "Expression"
+                    },
+                    "table": {
+                        "value": "@dataset().TableName",
+                        "type": "Expression"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_ADWH_Database')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_ASDW_AnalyticsDWH",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "SchemaName": {
+                        "type": "string"
+                    },
+                    "TableName": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "type": "AzureSqlDWTable",
+                "schema": [],
+                "typeProperties": {
+                    "schema": {
+                        "value": "@dataset().SchemaName",
+                        "type": "Expression"
+                    },
+                    "table": {
+                        "value": "@dataset().TableName",
+                        "type": "Expression"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_DLS_DatalakeRep')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_ASQL_ScrambleDataLake",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "SchemaName": {
+                        "type": "string",
+                        "defaultValue": "gsuite"
+                    },
+                    "TableName": {
+                        "type": "string",
+                        "defaultValue": "GoogleUsers"
+                    }
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Source"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [],
+                "typeProperties": {
+                    "schema": {
+                        "value": "@dataset().SchemaName",
+                        "type": "Expression"
+                    },
+                    "table": {
+                        "value": "@dataset().TableName",
+                        "type": "Expression"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_DLD_DatalakeDev')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_ASQL_ScrambleDataLakeDev",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "SchemaName": {
+                        "type": "string",
+                        "defaultValue": "gsuite"
+                    },
+                    "TableName": {
+                        "type": "string",
+                        "defaultValue": "GoogleUsers"
+                    }
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Sink"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [],
+                "typeProperties": {
+                    "schema": {
+                        "value": "@dataset().SchemaName",
+                        "type": "Expression"
+                    },
+                    "table": {
+                        "value": "@dataset().TableName",
+                        "type": "Expression"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_ADLS_CSVFile')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage1",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "Container": {
+                        "type": "string",
+                        "defaultValue": "dwhcontainerdev"
+                    },
+                    "Path": {
+                        "type": "string",
+                        "defaultValue": "Stage/CSV"
+                    },
+                    "FileName": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AzureStorage"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": {
+                            "value": "@concat(dataset().FileName, '.csv')",
+                            "type": "Expression"
+                        },
+                        "folderPath": {
+                            "value": "@dataset().Path",
+                            "type": "Expression"
+                        },
+                        "fileSystem": {
+                            "value": "@dataset().Container",
+                            "type": "Expression"
+                        }
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_ADLS_ParquetFile')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_ADLS_DataLakeDWHStorage",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "FileName": {
+                        "type": "String"
+                    }
+                },
+                "folder": {
+                    "name": "AzureStorage"
+                },
+                "annotations": [],
+                "type": "Parquet",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": {
+                            "value": "@concat(dataset().FileName, '.parquet')",
+                            "type": "Expression"
+                        },
+                        "folderPath": {
+                            "value": "@concat('lakehouse/golden/', toLower(dataset().FileName))",
+                            "type": "Expression"
+                        },
+                        "fileSystem": "synapse-workspace"
+                    },
+                    "compressionCodec": "snappy"
+                },
+                "schema": []
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Dim_Currency')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Currency Dimension",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadCurrency]",
+                            "storedProcedureParameters": {
+                                "EffectiveDate": {
+                                    "value": null,
+                                    "type": "DateTime"
+                                },
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Dim_Customer')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Customer Dimension",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadCustomer]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "variables": {
+                    "CorebaseClientTable": {
+                        "type": "Array",
+                        "defaultValue": [
+                            {
+                                "schema": "UA_CoreBase_staging_dbo",
+                                "source_table": "Client",
+                                "dest_table": "CorebaseClient"
+                            }
+                        ]
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Fact_OpportunityForecast')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Forecast Fact SF",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadFactOpportunityForecastSalesforce]",
+                            "storedProcedureParameters": {
+                                "EffectiveDate": {
+                                    "value": null,
+                                    "type": "DateTime"
+                                },
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    },
+                    {
+                        "name": "Load Fact Opp Forecast Bullhorn PL",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "Load Forecast Fact SF",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadFactOpportunityForecastBullhornPL]",
+                            "storedProcedureParameters": {
+                                "EffectiveDate": {
+                                    "value": null,
+                                    "type": "DateTime"
+                                },
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Dim_Opportunity')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load SF and BH Opportunity",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadOpportunity]",
+                            "storedProcedureParameters": {
+                                "EffectiveDate": {
+                                    "value": null,
+                                    "type": "Datetime"
+                                },
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Dim_ForexCurrency')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Forex Currency Dimension",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadForexCurrency]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Dim_Project')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Ukraine and Germany Projects",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadProject]",
+                            "storedProcedureParameters": {
+                                "EffectiveDate": {
+                                    "value": null,
+                                    "type": "Datetime"
+                                },
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Fact_Revenue')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Ukraine Revenue",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadFactRevenue1CUA]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    },
+                    {
+                        "name": "Load Germany Revenue",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "Load Ukraine Revenue",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadFactRevenueDatevDE]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    },
+                    {
+                        "name": "Load Poland Revenue",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "Load Germany Revenue",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadFactRevenueAssecoPL]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Fact_BudgetForecast')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Budget Forecast Fact",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadFactBudgetForecast]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Dim_Country')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Country Dimension",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadCountry]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Fact_Assignment')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Fact Assignment",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadFactAssignmentCorebaseUA]",
+                            "storedProcedureParameters": {
+                                "MonthBack": {
+                                    "value": "1",
+                                    "type": "Int32"
+                                },
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Fact_TimeReporting')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Fact Time Reporting UA",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadFactTimeReportingCorebaseUA]",
+                            "storedProcedureParameters": {
+                                "MonthBack": {
+                                    "value": "1",
+                                    "type": "Int32"
+                                },
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    },
+                    {
+                        "name": "Load Fact Time Reporting DE",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "Load Fact Time Reporting UA",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadFactTimeReportingProjectileDE]",
+                            "storedProcedureParameters": {
+                                "MonthBack": {
+                                    "value": "1",
+                                    "type": "Int32"
+                                },
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Dim_TimeReportingType')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Time Reporting Type Dimension",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadTimeReportingTypeCorebaseUA]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Fact_CalendarEvent')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Calendar Event Fact",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadFactCalendarEvent]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Fact_EmployeeFeedback')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Fact Employee Feedback",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadFactEmployeeFeedbackCorebaseUA]",
+                            "storedProcedureParameters": {
+                                "MonthBack": {
+                                    "value": "1",
+                                    "type": "Int32"
+                                },
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        }
+    ]
+}

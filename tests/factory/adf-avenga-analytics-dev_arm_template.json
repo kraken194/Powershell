@@ -1,0 +1,56 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "adf-avenga-analytics-dev"
+        },
+        "dataFactory_properties_globalParameters_KeyVaultName_value": {
+            "type": "string",
+            "defaultValue": "kv-avenga-analytics-dev"
+        },
+        "dataFactory_properties_globalParameters_DWHContainerName_value": {
+            "type": "string",
+            "defaultValue": "dwhcontainerdev"
+        },
+        "dataFactory_location": {
+            "type": "string",
+            "defaultValue": "westeurope"
+        },
+        "dataFactory_identity_type": {
+            "type": "string",
+            "defaultValue": "SystemAssigned"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[parameters('factoryName')]",
+            "type": "Microsoft.DataFactory/factories",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "globalParameters": {
+                    "KeyVaultName": {
+                        "type": "string",
+                        "value": "[parameters('dataFactory_properties_globalParameters_KeyVaultName_value')]"
+                    },
+                    "DWHContainerName": {
+                        "type": "string",
+                        "value": "[parameters('dataFactory_properties_globalParameters_DWHContainerName_value')]"
+                    }
+                }
+            },
+            "dependsOn": [],
+            "location": "[parameters('dataFactory_location')]",
+            "identity": {
+                "type": "[parameters('dataFactory_identity_type')]",
+                "principalId": "85fa428e-486f-493a-a7f9-eac120ab57e1",
+                "tenantId": "967fd838-bf1e-42f8-8b3e-2b51a168c0db"
+            }
+        }
+    ]
+}

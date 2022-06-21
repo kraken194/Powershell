@@ -1,0 +1,342 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "adf-avenga-analytics-dev"
+        },
+        "Sftp1_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'Sftp1'"
+        },
+        "Hubspot1_clientSecret": {
+            "type": "secureString",
+            "metadata": "Secure string for 'clientSecret' of 'Hubspot1'"
+        },
+        "Hubspot1_accessToken": {
+            "type": "secureString",
+            "metadata": "Secure string for 'accessToken' of 'Hubspot1'"
+        },
+        "Hubspot1_refreshToken": {
+            "type": "secureString",
+            "metadata": "Secure string for 'refreshToken' of 'Hubspot1'"
+        },
+        "Synapse-pause_properties_PL_SynapsePauseResume_parameters_KeyVaultName": {
+            "type": "string",
+            "defaultValue": "kv-avenga-analytics-dev"
+        },
+        "Synapse-pause_properties_PL_SynapsePauseResume_parameters_Action": {
+            "type": "string",
+            "defaultValue": "pause"
+        },
+        "IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogServerEndpoint": {
+            "type": "string",
+            "defaultValue": "sql-avenga-analytics-dev.database.windows.net"
+        },
+        "IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminUserName": {
+            "type": "string",
+            "defaultValue": "adm1n"
+        },
+        "IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminPassword": {
+            "type": "secureString"
+        },
+        "LS_AF_AvengaAnaliticsFuncApp_properties_typeProperties_functionAppUrl": {
+            "type": "string",
+            "defaultValue": "https://func-avenga-analytics-dev.azurewebsites.net"
+        },
+        "LS_AKV_AvengaAnalytics_properties_typeProperties_baseUrl": {
+            "type": "string",
+            "defaultValue": "https://kv-avenga-analytics-dev.vault.azure.net/"
+        },
+        "LS_REST_GoogleUsersList_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://www.googleapis.com/admin/directory/v1/users?customer=my_customer&maxResults=50&projection=full"
+        },
+        "LS_ASQL_ScrambleDataLake_properties_typeProperties_connectionString_secretName": {
+            "type": "string",
+            "defaultValue": "ScrambleDataLakeSQLConnectionString"
+        },
+        "LS_ASQL_DataLake_properties_typeProperties_connectionString_secretName": {
+            "type": "string",
+            "defaultValue": "DataLakeSQLConnectionString"
+        },
+        "LS_ASDW_AnalyticsDWH_properties_typeProperties_connectionString_secretName": {
+            "type": "string",
+            "defaultValue": "AnalyticsDWHConnectionString"
+        },
+        "LS_ASQL_ScrambleDataLakeDev_properties_typeProperties_connectionString_secretName": {
+            "type": "string",
+            "defaultValue": "ScrambleDataLakeDevSQLConnectionString"
+        },
+        "Sftp1_properties_typeProperties_host": {
+            "type": "string",
+            "defaultValue": "assets.sevenval-fit.com"
+        },
+        "Sftp1_properties_typeProperties_userName": {
+            "type": "string",
+            "defaultValue": "avenga-sf-backups"
+        },
+        "AzureDataLakeStorage1_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://dwhblobdev.dfs.core.windows.net"
+        },
+        "Hubspot1_properties_typeProperties_clientId": {
+            "type": "string",
+            "defaultValue": "51bb9557-12f6-4175-9c5c-5f6d17e11372"
+        },
+        "LS_REST_MicrosoftGraph_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://graph.microsoft.com/"
+        },
+        "LS_ADLS_DataLakeDWHStorage_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://dwhblobg2dev.dfs.core.windows.net/"
+        },
+        "LS_REST_CoreBase_TimeOff_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://corebase.cvlabs.net/TimeOff/ExportTimeOffStatusOnDate?date=2022-12-31"
+        },
+        "containerUri": {
+            "type": "string",
+            "metadata": "URI to storage account containing linked ARM templates"
+        },
+        "containerSasToken": {
+            "type": "string",
+            "metadata": "Sas token to storage account containing linked ARM templates"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "adf-avenga-analytics-dev_ArmTemplate_0",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-02-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    },
+                    "Sftp1_password": {
+                        "value": "[parameters('Sftp1_password')]"
+                    },
+                    "Hubspot1_clientSecret": {
+                        "value": "[parameters('Hubspot1_clientSecret')]"
+                    },
+                    "Hubspot1_accessToken": {
+                        "value": "[parameters('Hubspot1_accessToken')]"
+                    },
+                    "Hubspot1_refreshToken": {
+                        "value": "[parameters('Hubspot1_refreshToken')]"
+                    },
+                    "IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogServerEndpoint": {
+                        "value": "[parameters('IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogServerEndpoint')]"
+                    },
+                    "IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminUserName": {
+                        "value": "[parameters('IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminUserName')]"
+                    },
+                    "IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminPassword": {
+                        "value": "[parameters('IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminPassword')]"
+                    },
+                    "LS_AKV_AvengaAnalytics_properties_typeProperties_baseUrl": {
+                        "value": "[parameters('LS_AKV_AvengaAnalytics_properties_typeProperties_baseUrl')]"
+                    },
+                    "LS_REST_GoogleUsersList_properties_typeProperties_url": {
+                        "value": "[parameters('LS_REST_GoogleUsersList_properties_typeProperties_url')]"
+                    },
+                    "Sftp1_properties_typeProperties_host": {
+                        "value": "[parameters('Sftp1_properties_typeProperties_host')]"
+                    },
+                    "Sftp1_properties_typeProperties_userName": {
+                        "value": "[parameters('Sftp1_properties_typeProperties_userName')]"
+                    },
+                    "Hubspot1_properties_typeProperties_clientId": {
+                        "value": "[parameters('Hubspot1_properties_typeProperties_clientId')]"
+                    },
+                    "LS_REST_MicrosoftGraph_properties_typeProperties_url": {
+                        "value": "[parameters('LS_REST_MicrosoftGraph_properties_typeProperties_url')]"
+                    },
+                    "LS_REST_CoreBase_TimeOff_properties_typeProperties_url": {
+                        "value": "[parameters('LS_REST_CoreBase_TimeOff_properties_typeProperties_url')]"
+                    },
+                    "Synapse-pause_properties_PL_SynapsePauseResume_parameters_KeyVaultName": {
+                        "value": "[parameters('Synapse-pause_properties_PL_SynapsePauseResume_parameters_KeyVaultName')]"
+                    },
+                    "Synapse-pause_properties_PL_SynapsePauseResume_parameters_Action": {
+                        "value": "[parameters('Synapse-pause_properties_PL_SynapsePauseResume_parameters_Action')]"
+                    },
+                    "LS_AF_AvengaAnaliticsFuncApp_properties_typeProperties_functionAppUrl": {
+                        "value": "[parameters('LS_AF_AvengaAnaliticsFuncApp_properties_typeProperties_functionAppUrl')]"
+                    },
+                    "LS_ASQL_ScrambleDataLake_properties_typeProperties_connectionString_secretName": {
+                        "value": "[parameters('LS_ASQL_ScrambleDataLake_properties_typeProperties_connectionString_secretName')]"
+                    },
+                    "LS_ASQL_DataLake_properties_typeProperties_connectionString_secretName": {
+                        "value": "[parameters('LS_ASQL_DataLake_properties_typeProperties_connectionString_secretName')]"
+                    },
+                    "LS_ASDW_AnalyticsDWH_properties_typeProperties_connectionString_secretName": {
+                        "value": "[parameters('LS_ASDW_AnalyticsDWH_properties_typeProperties_connectionString_secretName')]"
+                    },
+                    "LS_ASQL_ScrambleDataLakeDev_properties_typeProperties_connectionString_secretName": {
+                        "value": "[parameters('LS_ASQL_ScrambleDataLakeDev_properties_typeProperties_connectionString_secretName')]"
+                    },
+                    "AzureDataLakeStorage1_properties_typeProperties_url": {
+                        "value": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]"
+                    },
+                    "LS_ADLS_DataLakeDWHStorage_properties_typeProperties_url": {
+                        "value": "[parameters('LS_ADLS_DataLakeDWHStorage_properties_typeProperties_url')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "adf-avenga-analytics-dev_ArmTemplate_1",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-02-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'adf-avenga-analytics-dev_ArmTemplate_0')]"
+            ]
+        },
+        {
+            "name": "adf-avenga-analytics-dev_ArmTemplate_2",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-02-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_2.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'adf-avenga-analytics-dev_ArmTemplate_1')]"
+            ]
+        },
+        {
+            "name": "adf-avenga-analytics-dev_ArmTemplate_3",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-02-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_3.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'adf-avenga-analytics-dev_ArmTemplate_2')]"
+            ]
+        },
+        {
+            "name": "adf-avenga-analytics-dev_ArmTemplate_4",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-02-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_4.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'adf-avenga-analytics-dev_ArmTemplate_3')]"
+            ]
+        },
+        {
+            "name": "adf-avenga-analytics-dev_ArmTemplate_5",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-02-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_5.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'adf-avenga-analytics-dev_ArmTemplate_4')]"
+            ]
+        },
+        {
+            "name": "adf-avenga-analytics-dev_ArmTemplate_6",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-02-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_6.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'adf-avenga-analytics-dev_ArmTemplate_5')]"
+            ]
+        },
+        {
+            "name": "adf-avenga-analytics-dev_ArmTemplate_7",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-02-01",
+            "properties": {
+                "mode": "incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('containerUri'), '/ArmTemplate_7.json', parameters('containerSasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "factoryName": {
+                        "value": "[parameters('factoryName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'adf-avenga-analytics-dev_ArmTemplate_6')]"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,1709 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "adf-avenga-analytics-dev"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_ScrambleExportDATARAW2020DE')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Scrambled Export_DATA_RAW_2020_DE",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT [Konto]\n      ,[Gegenkonto]\n      ,[Umsatz Soll] = CASE WHEN ISNULL(TRY_PARSE([Umsatz Soll] AS DECIMAL(19, 4) USING 'de-DE'), 0) <> 0 THEN (ABS(CHECKSUM(NEWID())) % 99000) + 1000 ELSE 0 END\n      ,[Umsatz Haben] = CASE WHEN ISNULL(TRY_PARSE([Umsatz Haben] AS DECIMAL(19, 4) USING 'de-DE'), 0) <> 0 THEN (ABS(CHECKSUM(NEWID())) % 99000) + 1000 ELSE 0 END\n      ,[Kurs]\n      ,[Belegdatum]\n      ,[Belegfeld 1]\n      ,[Belegfeld 2]\n      ,[Buchungstext]\n      ,[F�lligkeit]\n      ,[KOST1 - Kostenstelle]\n      ,[KOST2 - Kostenstelle]\n      ,[Steuersatz] = CASE WHEN ISNULL(TRY_PARSE([Steuersatz] AS DECIMAL(19, 4) USING 'de-DE'), 0) <> 0 THEN (ABS(CHECKSUM(NEWID())) % 99000) + 1000 ELSE 0 END\n      ,[EU-Land]\n      ,[Stapel-Nr.]\n      ,[MandantenNr]\n      ,[Wirtschaftsjahr]\n      ,[Monat]\n  FROM [DE_datalakesftp].[Export_DATA_RAW_2020_DE]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "TRUNCATE TABLE [DE_datalakesftp].[Export_DATA_RAW_2020_DE];",
+                                "writeBehavior": "insert",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DLS_DatalakeRep",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "DE_datalakesftp",
+                                    "TableName": "Export_DATA_RAW_2020_DE"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_DLD_DatalakeDev",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "DE_datalakesftp",
+                                    "TableName": "Export_DATA_RAW_2020_DE"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Datev"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_ScrambleWusrTBLObrotyWKNew')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Scrambled wusr_TBL_ObrotyWKNew",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT \n\t[gniazdo;KL], \n\t[kwota] = CASE WHEN [kwota] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 9900) + 100 ELSE 0 END, \n\t[symwl], \n\t[gi], \n\t[konto], \n\t[gniazdo;TP],\n\t[gniazdo;PD], \n\t[DataRRMM],\n\t[Nazwa1],\n\t[id], \n\t[Gniazdo;PR]\nFROM [PL_Asseco_staging_dbo].[wusr_TBL_ObrotyWKNew]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "TRUNCATE TABLE [PL_Asseco_staging_dbo].[wusr_TBL_ObrotyWKNew];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "name": "id",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "id",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "gniazdo;KL",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "gniazdo;KL",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "kwota",
+                                            "type": "Int32"
+                                        },
+                                        "sink": {
+                                            "name": "kwota",
+                                            "type": "Decimal"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "symwl",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "symwl",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "gi",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "GI",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "konto",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "konto",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "gniazdo;TP",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "gniazdo;TP",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "gniazdo;PD",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "gniazdo;PD",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "DataRRMM",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "DataRRMM",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Nazwa1",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "Nazwa1",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Gniazdo;PR",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "gniazdo;PR",
+                                            "type": "String"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DLS_DatalakeRep",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "PL_Asseco_staging_dbo",
+                                    "TableName": "wusr_TBL_ObrotyWKNew"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_DLD_DatalakeDev",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "PL_Asseco_staging_dbo",
+                                    "TableName": "wusr_TBL_ObrotyWKNew"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_MappingOpportunityProject')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Refresh Corebase Mapping",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT DISTINCT\n\t [OpportunityId] = o.id \n\t,[ExternalId] = [_fld24615]\n\t,[SourceSystemName] = 'Corebase'\nFROM [UA_1C_staging_dbo].[_InfoRg24610] m \n\tINNER JOIN [GLO_Salesforce].[Opportunity] o ON m.[_fld24614] = o.[Opportunity_Number__c]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "DELETE FROM [stage].[MappingOpportunityProject] WHERE [SourceSystemName] = 'Corebase';",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "UA_1C_staging_dbo",
+                                    "TableName": "_InfoRg24610"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "MappingOpportunityProject"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Refresh Projectile Mapping",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "Refresh Corebase Mapping",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT \n\tId as OpportunityId,\n\tDA_Project_Number__c as ExternalId,\n\t'Projecttile' as SourceSystemName \nFROM \n\t[GLO_Salesforce].[Opportunity]  \nWHERE \nISNULL(TRIM(DA_Project_Number__c), '') <> ''",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "DELETE FROM [stage].[MappingOpportunityProject] WHERE [SourceSystemName] = 'Projecttile';",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "GLO_Salesforce",
+                                    "TableName": "Opportunity"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "MappingOpportunityProject"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_ScrambleTproject')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Scrambled tproject",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT [sysNoTs]\n      ,[sysClientId]\n      ,[sysUnique]\n      ,[sysAccess]\n      ,[sysAccessRights]\n      ,[sysCreated]\n      ,[sysCreatedBy]\n      ,[sysChanged]\n      ,[sysChangedBy]\n      ,[pProject]\n      ,[pNumber]\n      ,[pDescription] = 'Project' + [pNumber]\n      ,[pProjectBeginDatePlanning]\n      ,[pProjectEndDatePlanning]\n      ,[pExternal]\n      ,[pProductionEffort]\n      ,[pCustomer]\n      ,[capCustomer] = 'Client' + [pCustomer]\n      ,[pContact]\n      ,[capContact]\n      ,[pUnit]\n      ,[capUnit]\n      ,[pParentProject]\n      ,[capParentProject]\n      ,[pContact2]\n      ,[capContact2]\n      ,[pContact3]\n      ,[capContact3]\n      ,[pResponsible]\n      ,[capResponsible]\n      ,[pBeginTime]\n      ,[pEndTime]\n      ,[pTargetTime]\n      ,[pProjectTimePlanning]\n      ,[pActualTime]\n      ,[pActive]\n      ,[pResourceClearance]\n      ,[pLastActivityChange]\n      ,[pLastActivityChangePassive]\n      ,[pLastActivityChangeActive]\n      ,[pLastActivityChangeClosed]\n      ,[pPriority]\n      ,[pPortfolio]\n      ,[capPortfolio]\n      ,[pPrograms]\n      ,[capPrograms]\n      ,[pCurrency]\n      ,[capCurrency]\n      ,[pRate]\n      ,[pHourlyPrice] = CASE WHEN [pHourlyPrice] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 100) + 30 ELSE 0 END\n      ,[pJobPriceExternal]\n      ,[capJobPriceExternal]\n      ,[pHoursPerManDay]\n      ,[pTradeDiscount]\n      ,[pSurchargeForWorkCost]\n      ,[pOfferValueRevenue]\n      ,[pOfferValueCosts]\n      ,[pOfferValueProfit]\n      ,[pOfferValueProfitP]\n      ,[pOrderValueRevenue]\n      ,[pOrderValueCosts]\n      ,[pOrderValueProfit]\n      ,[pOrderValueProfitP]\n      ,[pTypeCommision]\n      ,[pBudget] = CASE WHEN [pBudget] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 90000) + 10000 ELSE 0 END\n      ,[pOrderNumber]\n      ,[pFixPriceShare]\n      ,[pProjectBudget] = CASE WHEN [pProjectBudget] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 90000) + 10000 ELSE 0 END\n      ,[pProjectWorkCost] = CASE WHEN [pProjectWorkCost] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 49900) + 100 ELSE 0 END\n      ,[pProjectMiscCost] = CASE WHEN [pProjectMiscCost] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 49900) + 100 ELSE 0 END\n      ,[pProjectCostPlanning] = CASE WHEN [pProjectCostPlanning] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 90000) + 10000 ELSE 0 END\n      ,[pCurrentOfferAmountBrutto] = CASE WHEN [pCurrentOfferAmountBrutto] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 90000) + 10000 ELSE 0 END\n      ,[pCurrentInvoiceAmountBrutto] = CASE WHEN [pCurrentInvoiceAmountBrutto] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 90000) + 10000 ELSE 0 END\n      ,[pActualCost] = CASE WHEN [pActualCost] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 90000) + 10000 ELSE 0 END\n      ,[pTrackedCost] = CASE WHEN [pTrackedCost] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 90000) + 10000 ELSE 0 END\n      ,[pDiffPlanActual]\n      ,[pProfitability]\n      ,[pCostUnit]\n      ,[pOrderDate]\n      ,[pPaymentTerms]\n      ,[pCostCenter]\n      ,[pBillingType]\n      ,[pBillingFlatAmount]\n      ,[pDailyFlatAmount]\n      ,[pCategory]\n      ,[pCategory2]\n      ,[pCategory3]\n      ,[pCategory4]\n      ,[pCategory5]\n      ,[pProbability]\n      ,[pTopProject]\n      ,[capTopProject]\n      ,[pCostUnitProject]\n      ,[pCategory6]\n      ,[pCategory7]\n      ,[pCurrentOrderAmountNetto]\n      ,[pCurrentOrderAmountBrutto]\n      ,[pBilledTime]\n      ,[pTimeToCompletion]\n      ,[pLimitTimeTracking]\n      ,[pFixed]\n      ,[pMSProjectId]\n      ,[pMSProjectDuration]\n      ,[pSortIndex]\n      ,[pPreventProjectPlanning]\n      ,[pFlatProjectAccess]\n      ,[pCheckedAssessTime]\n      ,[pCheckedTrackedTime]\n      ,[pLimitTimeProcess]\n      ,[pLimitTrackBegin]\n      ,[pLimitTrackEnd]\n      ,[pNote]\n      ,[pOrderCompany]\n      ,[pOOInvoiceTemplate]\n      ,[ReportSelTimeSheet]\n      ,[pIncomingOrder]\n      ,[pPaymentPeriod]\n      ,[pSurchargeProjectManagement]\n      ,[pSurchargeRisk]\n      ,[pSurchargeFixedPrice]\n      ,[pSumProjectSurcharges]\n      ,[pRevenuePrim]\n      ,[pCostsPrim]\n      ,[pProfitPrim]\n      ,[pProfitPercentPrim]\n      ,[pRevenueInternalPrim]\n      ,[pCostsInternalPrim]\n      ,[pProfitInternalPrim]\n      ,[pProfitPercentInternalPrim]\n      ,[pRevenueExternalPrim]\n      ,[pCostsExternalPrim]\n      ,[pProfitExternalPrim]\n      ,[pProfitPercentExternalPrim]\n      ,[pRevenueTotal]\n      ,[pCostsTotal]\n      ,[pProfitTotal]\n      ,[pProfitPercentTotal]\n      ,[pSurchargeFixedPriceAbs]\n      ,[pSurchargeRiskAbs]\n      ,[pSurchargeManagementAbs]\n      ,[pRevenueTotalFinal]\n      ,[pProfitTotalFinal]\n      ,[pCurrentOfferAmountNetto]\n      ,[pCurrentInvoiceAmountNetto]\n      ,[pProfitPercentTotalFinal]\n      ,[pOriginalCampaign]\n      ,[capOriginalCampaign]\n      ,[pStartBudget]\n      ,[pExternalCosts]\n      ,[pInternalCosts]\n      ,[pFreeBudget]\n      ,[pRiskTotalSum]\n      ,[pRiskCSTSum]\n      ,[pRiskCST001]\n      ,[pRiskCST002]\n      ,[pRiskCST003]\n      ,[pRiskCST004]\n      ,[pRiskCST005]\n      ,[pRiskECOSum]\n      ,[pRiskECO001]\n      ,[pRiskECO002]\n      ,[pRiskECO003]\n      ,[pRiskECO004]\n      ,[pRiskECO005]\n      ,[pRiskRESSum]\n      ,[pRiskRES001]\n      ,[pRiskRES002]\n      ,[pRiskRES003]\n      ,[pRiskRES004]\n      ,[pRiskRES005]\n      ,[pRiskIMPSum]\n      ,[pRiskIMP001]\n      ,[pRiskIMP002]\n      ,[pRiskIMP003]\n      ,[pRiskIMP004]\n      ,[pRiskIMP005]\n      ,[pCashDiscount]\n      ,[pRestTimeState]\n      ,[pOrderNumber2]\n      ,[pNumberOld]\n      ,[pInventoryTurnover]\n      ,[pPotConfValue]\n      ,[pContingent]\n      ,[pAddCopyOfReceipts]\n      ,[pBsmFlag]\n      ,[pLimitTimeProject]\n      ,[pCreatedBaseline]\n      ,[capCreatedBaseline]\n      ,[pEffortEstimationCheck]\n      ,[pEffortEstimationDescription]\n      ,[pOfferCheck]\n      ,[pOfferDescription]\n      ,[pPOCheck]\n      ,[pPODescription]\n      ,[pInternalKikOffCheck]\n      ,[pInternalKickOffDescription]\n      ,[pIBPChecklistCheck]\n      ,[pIBPChecklistDescription]\n      ,[pExternalKickOffCheck]\n      ,[pExternalKickOffDescription]\n      ,[pUXConceptCheck]\n      ,[pUXConceptDescription]\n      ,[pDecreasedTechnicalConceptCheck]\n      ,[pDecreasedTechnicalConceptDescription]\n      ,[pBacklogCheck]\n      ,[pBacklogDescription]\n      ,[pTestplanCheck]\n      ,[pTestplanDescription]\n      ,[pQSRealeaseCheck]\n      ,[pQSRealeaseDescription]\n      ,[pCustomerAcceptanceCheck]\n      ,[pCustomerAcceptanceDescription]\n      ,[pFinishedProjectReportCheck]\n      ,[pFinishedProjectReportDescription]\n      ,[pKeyAccountManager]\n      ,[capKeyAccountManager]\n      ,[pReporting]\n      ,[pHideTimeline]\n      ,[pLastTrackingRestriction]\n      ,[pSurchargeManagement]\n      ,[pBudgetSubInternalSum]\n      ,[pBudgetSubExternalSum]\n      ,[pBudgetSubDifference]\n      ,[pSurchargeSubFixedPriceAbs]\n      ,[pSurchargeSubRiskAbs]\n      ,[pSurchargeSubManagementAbs]\n      ,[pSurchargeFixedPriceAbsSum]\n      ,[pSurchargeRiskAbsSum]\n      ,[pSurchargeManagementAbsSum]\n      ,[pProjectCategory]\n  FROM [projectile].[tproject]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "TRUNCATE TABLE [projectile].[tproject];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DLS_DatalakeRep",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "projectile",
+                                    "TableName": "tproject"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_DLD_DatalakeDev",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "projectile",
+                                    "TableName": "tproject"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Projectile"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:20Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_ScrambleSalesforceUser')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Scrambled Salesforce User",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT\n\t[Id]\n\t,[Username] = \n\t\tCASE WHEN COALESCE([Username], '') = ''\n\t\t\t\tTHEN [Username]\n\t\t\t WHEN CHARINDEX('@', [Username]) = 0\n\t\t\t \tTHEN CONCAT(CONVERT(NVARCHAR(32), HashBytes('MD5', LOWER([Username])), 2), '@avenga.com.dev')\n\t\t\t ELSE CONCAT(CONVERT(NVARCHAR(32), HashBytes('MD5', LEFT(LOWER([Username]), CHARINDEX('@', [Username]) - 1)), 2),\n\t\t\t \t\tCASE WHEN RIGHT([Username], LEN([Username]) - CHARINDEX('@', [Username])) = 'avenga.com' \n\t\t\t \t\t\t\tTHEN '@avenga.com.dev'\n\t\t\t \t\t\t ELSE RIGHT([Username], LEN([Username]) - CHARINDEX('@', [Username]) + 1)\n\t\t\t \t\tEND) \n\t\tEND\n\t,[LastName] = CONVERT(NVARCHAR(32), HashBytes('MD5', [LastName]), 2)\n\t,[FirstName] = CONVERT(NVARCHAR(32), HashBytes('MD5',[FirstName]), 2)\n\t,[Name] = CONVERT(NVARCHAR(32), HashBytes('MD5', [Name]), 2)\n\t,[CompanyName]\n\t,[Division]\n\t,[Department]\n\t,[Title]\n\t,[Street]\n\t,[City]\n\t,[State]\n\t,[PostalCode]\n\t,[Country]\n\t,[StateCode]\n\t,[CountryCode]\n\t,[Latitude]\n\t,[Longitude]\n\t,[GeocodeAccuracy]\n\t,[Email] =\n\t\tCASE WHEN COALESCE([Email], '') = ''\n\t\t\t\tTHEN [Email]\n\t\t\t WHEN CHARINDEX('@', [Email]) = 0\n\t\t\t \tTHEN CONCAT(CONVERT(NVARCHAR(32), HashBytes('MD5', LOWER([Email])), 2), '@avenga.com.dev')\n\t\t\t ELSE CONCAT(CONVERT(NVARCHAR(32), HashBytes('MD5', LEFT(LOWER([Email]), CHARINDEX('@', [Email]) - 1)), 2),\n\t\t\t \t\tCASE WHEN RIGHT([Email], LEN([Email]) - CHARINDEX('@', [Email])) = 'avenga.com' \n\t\t\t \t\t\t\tTHEN '@avenga.com.dev'\n\t\t\t \t\t\t ELSE RIGHT([Email], LEN([Email]) - CHARINDEX('@', [Email]) + 1)\n\t\t\t \t\tEND) \n\t\tEND\n\t,[EmailPreferencesAutoBcc]\n\t,[EmailPreferencesAutoBccStayInTouch]\n\t,[EmailPreferencesStayInTouchReminder]\n\t,[SenderEmail]\n\t,[SenderName]\n\t,[Signature]\n\t,[StayInTouchSubject]\n\t,[StayInTouchSignature]\n\t,[StayInTouchNote]\n\t,[Phone]\n\t,[Fax]\n\t,[MobilePhone]\n\t,[Alias]\n\t,[CommunityNickname]\n\t,[BadgeText]\n\t,[IsActive]\n\t,[TimeZoneSidKey]\n\t,[UserRoleId]\n\t,[LocaleSidKey]\n\t,[ReceivesInfoEmails]\n\t,[ReceivesAdminInfoEmails]\n\t,[EmailEncodingKey]\n\t,[DefaultCurrencyIsoCode]\n\t,[CurrencyIsoCode]\n\t,[ProfileId]\n\t,[UserType]\n\t,[LanguageLocaleKey]\n\t,[EmployeeNumber]\n\t,[DelegatedApproverId]\n\t,[ManagerId]\n\t,[LastLoginDate]\n\t,[LastPasswordChangeDate]\n\t,[CreatedDate]\n\t,[CreatedById]\n\t,[LastModifiedDate]\n\t,[LastModifiedById]\n\t,[SystemModstamp]\n\t,[NumberOfFailedLogins]\n\t,[OfflineTrialExpirationDate]\n\t,[OfflinePdaTrialExpirationDate]\n\t,[UserPermissionsMarketingUser]\n\t,[UserPermissionsOfflineUser]\n\t,[UserPermissionsAvantgoUser]\n\t,[UserPermissionsCallCenterAutoLogin]\n\t,[UserPermissionsSFContentUser]\n\t,[UserPermissionsInteractionUser]\n\t,[UserPermissionsSupportUser]\n\t,[ForecastEnabled]\n\t,[UserPreferencesActivityRemindersPopup]\n\t,[UserPreferencesEventRemindersCheckboxDefault]\n\t,[UserPreferencesTaskRemindersCheckboxDefault]\n\t,[UserPreferencesReminderSoundOff]\n\t,[UserPreferencesDisableAllFeedsEmail]\n\t,[UserPreferencesDisableFollowersEmail]\n\t,[UserPreferencesDisableProfilePostEmail]\n\t,[UserPreferencesDisableChangeCommentEmail]\n\t,[UserPreferencesDisableLaterCommentEmail]\n\t,[UserPreferencesDisProfPostCommentEmail]\n\t,[UserPreferencesContentNoEmail]\n\t,[UserPreferencesContentEmailAsAndWhen]\n\t,[UserPreferencesApexPagesDeveloperMode]\n\t,[UserPreferencesReceiveNoNotificationsAsApprover]\n\t,[UserPreferencesReceiveNotificationsAsDelegatedApprover]\n\t,[UserPreferencesHideCSNGetChatterMobileTask]\n\t,[UserPreferencesDisableMentionsPostEmail]\n\t,[UserPreferencesDisMentionsCommentEmail]\n\t,[UserPreferencesHideCSNDesktopTask]\n\t,[UserPreferencesHideChatterOnboardingSplash]\n\t,[UserPreferencesHideSecondChatterOnboardingSplash]\n\t,[UserPreferencesDisCommentAfterLikeEmail]\n\t,[UserPreferencesDisableLikeEmail]\n\t,[UserPreferencesSortFeedByComment]\n\t,[UserPreferencesDisableMessageEmail]\n\t,[UserPreferencesDisableBookmarkEmail]\n\t,[UserPreferencesDisableSharePostEmail]\n\t,[UserPreferencesEnableAutoSubForFeeds]\n\t,[UserPreferencesDisableFileShareNotificationsForApi]\n\t,[UserPreferencesShowTitleToExternalUsers]\n\t,[UserPreferencesShowManagerToExternalUsers]\n\t,[UserPreferencesShowEmailToExternalUsers]\n\t,[UserPreferencesShowWorkPhoneToExternalUsers]\n\t,[UserPreferencesShowMobilePhoneToExternalUsers]\n\t,[UserPreferencesShowFaxToExternalUsers]\n\t,[UserPreferencesShowStreetAddressToExternalUsers]\n\t,[UserPreferencesShowCityToExternalUsers]\n\t,[UserPreferencesShowStateToExternalUsers]\n\t,[UserPreferencesShowPostalCodeToExternalUsers]\n\t,[UserPreferencesShowCountryToExternalUsers]\n\t,[UserPreferencesShowProfilePicToGuestUsers]\n\t,[UserPreferencesShowTitleToGuestUsers]\n\t,[UserPreferencesShowCityToGuestUsers]\n\t,[UserPreferencesShowStateToGuestUsers]\n\t,[UserPreferencesShowPostalCodeToGuestUsers]\n\t,[UserPreferencesShowCountryToGuestUsers]\n\t,[UserPreferencesHideInvoicesRedirectConfirmation]\n\t,[UserPreferencesHideStatementsRedirectConfirmation]\n\t,[UserPreferencesHideS1BrowserUI]\n\t,[UserPreferencesDisableEndorsementEmail]\n\t,[UserPreferencesPathAssistantCollapsed]\n\t,[UserPreferencesCacheDiagnostics]\n\t,[UserPreferencesShowEmailToGuestUsers]\n\t,[UserPreferencesShowManagerToGuestUsers]\n\t,[UserPreferencesShowWorkPhoneToGuestUsers]\n\t,[UserPreferencesShowMobilePhoneToGuestUsers]\n\t,[UserPreferencesShowFaxToGuestUsers]\n\t,[UserPreferencesShowStreetAddressToGuestUsers]\n\t,[UserPreferencesLightningExperiencePreferred]\n\t,[UserPreferencesPreviewLightning]\n\t,[UserPreferencesHideEndUserOnboardingAssistantModal]\n\t,[UserPreferencesHideLightningMigrationModal]\n\t,[UserPreferencesHideSfxWelcomeMat]\n\t,[UserPreferencesHideBiggerPhotoCallout]\n\t,[UserPreferencesGlobalNavBarWTShown]\n\t,[UserPreferencesGlobalNavGridMenuWTShown]\n\t,[UserPreferencesCreateLEXAppsWTShown]\n\t,[UserPreferencesFavoritesWTShown]\n\t,[UserPreferencesRecordHomeSectionCollapseWTShown]\n\t,[UserPreferencesRecordHomeReservedWTShown]\n\t,[UserPreferencesFavoritesShowTopFavorites]\n\t,[UserPreferencesExcludeMailAppAttachments]\n\t,[UserPreferencesSuppressTaskSFXReminders]\n\t,[UserPreferencesSuppressEventSFXReminders]\n\t,[UserPreferencesPreviewCustomTheme]\n\t,[UserPreferencesHasCelebrationBadge]\n\t,[UserPreferencesUserDebugModePref]\n\t,[UserPreferencesSRHOverrideActivities]\n\t,[UserPreferencesNewLightningReportRunPageEnabled]\n\t,[UserPreferencesNativeEmailClient]\n\t,[UserPreferencesSendListEmailThroughExternalService]\n\t,[UserPreferencesHideBrowseProductRedirectConfirmation]\n\t,[UserPreferencesHideOnlineSalesAppWelcomeMat]\n\t,[ContactId]\n\t,[AccountId]\n\t,[CallCenterId]\n\t,[Extension]\n\t,[FederationIdentifier] = \n\t\tCASE WHEN COALESCE([FederationIdentifier], '') = ''\n\t\t\t\tTHEN [FederationIdentifier]\n\t\t\t WHEN CHARINDEX('@', [FederationIdentifier]) = 0\n\t\t\t \tTHEN CONCAT(CONVERT(NVARCHAR(32), HashBytes('MD5', LOWER([FederationIdentifier])), 2), '@avenga.com.dev')\n\t\t\t ELSE CONCAT(CONVERT(NVARCHAR(32), HashBytes('MD5', LEFT(LOWER([FederationIdentifier]), CHARINDEX('@', [FederationIdentifier]) - 1)), 2),\n\t\t\t \t\tCASE WHEN RIGHT([FederationIdentifier], LEN([FederationIdentifier]) - CHARINDEX('@', [FederationIdentifier])) = 'avenga.com' \n\t\t\t \t\t\t\tTHEN '@avenga.com.dev'\n\t\t\t \t\t\t ELSE RIGHT([FederationIdentifier], LEN([FederationIdentifier]) - CHARINDEX('@', [FederationIdentifier]) + 1)\n\t\t\t \t\tEND) \n\t\tEND\t,[AboutMe]\n\t,[FullPhotoUrl]\n\t,[SmallPhotoUrl]\n\t,[IsExtIndicatorVisible]\n\t,[OutOfOfficeMessage]\n\t,[MediumPhotoUrl]\n\t,[DigestFrequency]\n\t,[DefaultGroupNotificationFrequency]\n\t,[LastViewedDate]\n\t,[LastReferencedDate]\n\t,[BannerPhotoUrl]\n\t,[SmallBannerPhotoUrl]\n\t,[MediumBannerPhotoUrl]\n\t,[IsProfilePhotoActive]\n\t,[IndividualId]\n\t,[Data_Source__c]\n\t,[External_Id__c]\n\t,[Region__c]\nFROM [GLO_Salesforce].[User]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "TRUNCATE TABLE [GLO_Salesforce].[User];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DLS_DatalakeRep",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "GLO_Salesforce",
+                                    "TableName": "User"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_DLD_DatalakeDev",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "GLO_Salesforce",
+                                    "TableName": "User"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Salesforce"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_ScrambleCorebaseProject')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Corebase Project",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT [Id]\n      ,[Name] = 'Project-' + CAST([Id] AS NVARCHAR(16))\n      ,[StartDate]\n      ,[EndDate]\n      ,[Status]\n      ,[ClientId]\n      ,[DepartmentId]\n      ,[ParentId]\n      ,[Description]\n      ,[GraphId]\n      ,[IncludeInTimeOffRequest]\n      ,[ContractSigned]\n      ,[AllowedEditAssignment]\n      ,[CreatedOn]\n      ,[CreatedBy]\n      ,[ModifiedOn]\n      ,[ModifiedBy]\n      ,[DeletedOn]\nFROM [UA_CoreBase_staging_dbo].[Project]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "TRUNCATE TABLE [UA_CoreBase_staging_dbo].[Project];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DLS_DatalakeRep",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "UA_CoreBase_staging_dbo",
+                                    "TableName": "Project"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_DLD_DatalakeDev",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "UA_CoreBase_staging_dbo",
+                                    "TableName": "Project"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Corebase"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:18Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_ScrambleSalesforceOpportunity')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Scrambled Salesforce Opportunity",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT\n\t[Id]\n\t,[IsDeleted]\n\t,[AccountId]\n\t,[RecordTypeId]\n\t,[IsPrivate]\n    ,[Name] = 'Opportunity-' + RIGHT([Opportunity_Number__c], 6)\n\t,[Description]\n\t,[StageName]\n\t,[Amount]\n\t,[Probability]\n\t,[ExpectedRevenue]\n\t,[TotalOpportunityQuantity]\n\t,[CloseDate]\n\t,[Type]\n\t,[NextStep]\n\t,[LeadSource]\n\t,[IsClosed]\n\t,[IsWon]\n\t,[ForecastCategory]\n\t,[ForecastCategoryName]\n\t,[CurrencyIsoCode]\n\t,[CampaignId]\n\t,[HasOpportunityLineItem]\n\t,[Pricebook2Id]\n\t,[OwnerId]\n\t,[CreatedDate]\n\t,[CreatedById]\n\t,[LastModifiedDate]\n\t,[LastModifiedById]\n\t,[SystemModstamp]\n\t,[LastActivityDate]\n\t,[LastStageChangeDate]\n\t,[FiscalQuarter]\n\t,[FiscalYear]\n\t,[Fiscal]\n\t,[ContactId]\n\t,[LastViewedDate]\n\t,[LastReferencedDate]\n\t,[ContractId]\n\t,[HasOpenActivity]\n\t,[HasOverdueTask]\n\t,[LastAmountChangedHistoryId]\n\t,[LastCloseDateChangedHistoryId]\n\t,[Budget_Confirmed__c]\n\t,[Discovery_Completed__c]\n\t,[ROI_Analysis_Completed__c]\n\t,[Actual_Deal_Closure__c]\n\t,[Existing_Opportunity__c]\n\t,[BID_Type__c]\n\t,[Costs__c]\n\t,[DPM__c]\n\t,[Data_Source__c]\n\t,[Existing_Project__c]\n\t,[External_Id__c]\n\t,[Historical_Owner__c]\n\t,[Reason_Of_Loss_Details__c]\n\t,[Lead_Source_Comments__c]\n\t,[Project_Duration__c]\n\t,[Project_Start__c]\n\t,[Project_Type__c]\n\t,[Reason_Of_Loss__c]\n\t,[Region__c]\n\t,[Segment__c]\n\t,[Skills__c]\n\t,[Technical_capabilities__c]\n\t,[Technology__c]\n\t,[Email_DPM__c]\n\t,[Weighted_Amount__c]\n\t,[Id_15__c]\n\t,[Account_Status__c]\n\t,[Pre_Sales_Lead__c]\n\t,[Converted_Lead_Name__c]\n\t,[Next_Step__c]\n\t,[Opportunity_Number__c]\n\t,[Google_Drive_Legacy_Id__c]\n\t,[Google_Drive_Link__c]\n\t,[Sign_Off__c]\n\t,[Lead_ID__c]\n\t,[Number_of_Placements__c]\n\t,[Number_of_vacancies__c]\n\t,[Year_Is_Created__c]\n\t,[Open_Is_Created__c]\n\t,[DA_Project_Number__c]\n\t,[Closed_Is_Created__c]\n\t,[Won_Amount__c]\n\t,[Active_Risks__c]\n\t,[Exclude_From_RM__c]\n\t,[Google_Drive_Id__c]\n\t,[Latest_RM_Stage_Completed__c]\n\t,[Pre_sale_files__c]\n\t,[Project_End__c]\n\t,[RM_Completed__c]\n\t,[RM_Passed__c]\n\t,[RM__c]\n\t,[Risks_Accepted__c]\n\t,[X1st_Year_Revenue__c]\n\t,[Delivery_Country_Approved__c]\n\t,[Delivery_Country_Status__c]\n\t,[Delivery_Country__c]\n\t,[Exclude_from_DC_validation__c]\n\t,[IsLegacyOpp__c]\n\t,[Round_Projected_Cost__c]\n\t,[Round_Projected_Revenue__c]\n\t,[Projected_Cost__c]\n\t,[Projected_Revenue__c]\n\t,[Project_Decomposition_Count__c]\n\t,[Type_of_Services__c]\n\t,[Backlog_type__c]\n\t,[Delivery_Approval_Status__c]\n\t,[Delivery_Rejection_Reason__c]\n\t,[Engineering_Approval_Status__c]\n\t,[Engineering_Rejection_Reason__c]\n\t,[Industry_Account__c]\n\t,[Latest_Sign_Off__c]\n\t,[Project_Team_Approval_Needed__c]\n\t,[Is_On_Hold__c]\n\t,[Opportunity_Status__c]\n\t,[Opportunity_Is_Created__c]\n\t,[Assets_Is_Created__c]\n\t,[Contract_Is_Created__c]\n\t,[Corebase_Project_ID__c]\n\t,[Google_Drive_Assets_Id__c]\n\t,[Opportunity_Gdrive_folder__c]\n\t,[Lead_Converted__c]\n\t,[ProjectTeamMemberNumber__c]\n\t,[Number_of_openings__c]\n\t,[isProjectCountry__c]\n\t,[Original_Project_s_Country__c]\nFROM [GLO_Salesforce].[Opportunity]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "TRUNCATE TABLE [GLO_Salesforce].[Opportunity];",
+                                "writeBehavior": "insert",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DLS_DatalakeRep",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "GLO_Salesforce",
+                                    "TableName": "Opportunity"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_DLD_DatalakeDev",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "GLO_Salesforce",
+                                    "TableName": "Opportunity"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Salesforce"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:18Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Fact_ProjectForecast')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy German Project Manager",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "Load Germany Fact Project Forecast",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "SqlDWSource",
+                                "sqlReaderQuery": "SELECT\n\tfpf.[ProjectForecastKey]\n\t,fpf.[ProjectKey]\n\t,fpf.[ProjectID]\n\t,[ProjectManager] = LTRIM(value)\nFROM [dbo].[FactProjectForecast] fpf\n\tINNER JOIN [dbo].[Project] p ON fpf.[ProjectKey] = p.[ProjectKey] AND p.[IsCurrent] = 1\n    CROSS APPLY STRING_SPLIT(p.[ProjectManager], ';')\nWHERE RTRIM(value) <> ''",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "TRUNCATE TABLE [silver].[ProjectileProjectManager]",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "dbo",
+                                    "TableName": "FactProjectForecast"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "silver",
+                                    "TableName": "ProjectileProjectManager"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Load Germany Fact Project Forecast",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "Load Ukraine Fact Project Forecast",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadFactProjectForecastProjectileDE]",
+                            "storedProcedureParameters": {
+                                "ForecastMonthsBack": {
+                                    "value": "1",
+                                    "type": "Int16"
+                                },
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    },
+                    {
+                        "name": "Set Backlog Last Refresh parameter",
+                        "type": "Lookup",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy German Project Manager",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "SqlDWSource",
+                                "sqlReaderQuery": "IF EXISTS(SELECT TOP 1 1 FROM [dbo].[Parameter] WHERE [ParameterName] = 'BacklogLastRefresh')\n\tUPDATE [dbo].[Parameter]\n\tSET [ParameterValue] = CONVERT(NVARCHAR, GETDATE(), 20)\n\tWHERE [ParameterName] = 'BacklogLastRefresh'\nELSE \n\tINSERT INTO [dbo].[Parameter] ([ParameterName], [ParameterValue])\n\tSELECT\n\t\t[ParameterName] = 'BacklogLastRefresh'\n\t\t,[ParameterValue] = CONVERT(NVARCHAR, GETDATE(), 20);\n\nSELECT [ParameterValue]\nFROM [dbo].[Parameter]\nWHERE [ParameterName] = 'BacklogLastRefresh';",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "dbo",
+                                    "TableName": "Parameter"
+                                }
+                            },
+                            "firstRowOnly": false
+                        }
+                    },
+                    {
+                        "name": "Load Ukraine Fact Project Forecast",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadFactProjectForecast1CUA]",
+                            "storedProcedureParameters": {
+                                "ForecastMonthsBack": {
+                                    "value": "0",
+                                    "type": "Int16"
+                                },
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:18Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_ScrambleSalesforceForecast__c')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Scrambled Salesforce Forecast__c",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT\n\t[Id]\n\t,[IsDeleted]\n\t,[Name]\n\t,[CurrencyIsoCode]\n\t,[CreatedDate]\n\t,[CreatedById]\n\t,[LastModifiedDate]\n\t,[LastModifiedById]\n\t,[SystemModstamp]\n\t,[Opportunity__c]\n\t,[Active_Months__c]\n\t,[Apr__c] = CASE WHEN [Apr__c] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 190000.0) + 10000.0 ELSE 0.0 END\n\t,[Aug__c] = CASE WHEN [Aug__c] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 190000.0) + 10000.0 ELSE 0.0 END\n\t,[Dec__c] = CASE WHEN [Dec__c] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 190000.0) + 10000.0 ELSE 0.0 END\n\t,[Feb__c] = CASE WHEN [Feb__c] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 190000.0) + 10000.0 ELSE 0.0 END\n\t,[First_Year__c]\n\t,[Jan__c] = CASE WHEN [Jan__c] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 190000.0) + 10000.0 ELSE 0.0 END\n\t,[July__c] = CASE WHEN [July__c] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 190000.0) + 10000.0 ELSE 0.0 END\n\t,[June__c] = CASE WHEN [June__c] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 190000.0) + 10000.0 ELSE 0.0 END\n\t,[Mar__c] = CASE WHEN [Mar__c] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 190000.0) + 10000.0 ELSE 0.0 END\n\t,[May__c] = CASE WHEN [May__c] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 190000.0) + 10000.0 ELSE 0.0 END\n\t,[Nov__c] = CASE WHEN [Nov__c] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 190000.0) + 10000.0 ELSE 0.0 END\n\t,[Oct__c] = CASE WHEN [Oct__c] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 190000.0) + 10000.0 ELSE 0.0 END\n\t,[Sept__c] = CASE WHEN [Sept__c] <> 0 THEN (ABS(CHECKSUM(NEWID())) % 190000.0) + 10000.0 ELSE 0.0 END\n\t,[Total_Amount__c]\n\t,[Year__c]\n\t,[Forecast_Year__c]\nFROM [GLO_Salesforce].[Forecast__c]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "TRUNCATE TABLE [GLO_Salesforce].[Forecast__c];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DLS_DatalakeRep",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "GLO_Salesforce",
+                                    "TableName": "Forecast__c"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_DLD_DatalakeDev",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "GLO_Salesforce",
+                                    "TableName": "Forecast__c"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Salesforce"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:20Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_ScrambleCorebaseClient')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Corebase Client",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT [Id]\n      ,[Name] = 'Client-' + CAST([Id] AS NVARCHAR(16))\n      ,[Status]\n  FROM [UA_CoreBase_staging_dbo].[Client]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "TRUNCATE TABLE [UA_CoreBase_staging_dbo].[Client];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DLS_DatalakeRep",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "UA_CoreBase_staging_dbo",
+                                    "TableName": "Client"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_DLD_DatalakeDev",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "UA_CoreBase_staging_dbo",
+                                    "TableName": "Client"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Corebase"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_ScrambleSalesforceAccount')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Scrambled Salesforce Account",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT\n\t[Id]\n\t,[IsDeleted]\n\t,[MasterRecordId]\n\t,[Name] = 'Customer-' + RIGHT(Account_Number__c, 6)\n\t,[Type]\n\t,[RecordTypeId]\n\t,[ParentId]\n\t,[BillingStreet]\n\t,[BillingCity]\n\t,[BillingState]\n\t,[BillingPostalCode]\n\t,[BillingCountry]\n\t,[BillingStateCode]\n\t,[BillingCountryCode]\n\t,[BillingLatitude]\n\t,[BillingLongitude]\n\t,[BillingGeocodeAccuracy]\n\t,[ShippingStreet]\n\t,[ShippingCity]\n\t,[ShippingState]\n\t,[ShippingPostalCode]\n\t,[ShippingCountry]\n\t,[ShippingStateCode]\n\t,[ShippingCountryCode]\n\t,[ShippingLatitude]\n\t,[ShippingLongitude]\n\t,[ShippingGeocodeAccuracy]\n\t,[Phone]\n\t,[Fax]\n\t,[AccountNumber]\n\t,[Website] = CAST(NULL AS NVARCHAR(765))\n\t,[PhotoUrl]\n\t,[Sic]\n\t,[Industry]\n\t,[AnnualRevenue]\n\t,[NumberOfEmployees]\n\t,[Ownership]\n\t,[TickerSymbol]\n\t,[Description] = CAST(NULL AS NVARCHAR(MAX))\n\t,[Rating]\n\t,[Site]\n\t,[CurrencyIsoCode]\n\t,[OwnerId]\n\t,[CreatedDate]\n\t,[CreatedById]\n\t,[LastModifiedDate]\n\t,[LastModifiedById]\n\t,[SystemModstamp]\n\t,[LastActivityDate]\n\t,[LastViewedDate]\n\t,[LastReferencedDate]\n\t,[Jigsaw]\n\t,[JigsawCompanyId]\n\t,[AccountSource]\n\t,[SicDesc]\n\t,[Account_Source_Comments__c]\n\t,[Billing_Contact__c]\n\t,[Billing_Phone__c]\n\t,[Data_Source__c]\n\t,[Email_Domain__c] = CAST(NULL AS NVARCHAR(765))\n\t,[External_Id__c]\n\t,[Facebook__c]\n\t,[GDPR_Agreement__c]\n\t,[Historical_Owner__c] = CAST(NULL AS NVARCHAR(765))\n\t,[Internal_Group_Id__c]\n\t,[LinkedIn__c] = CAST(NULL AS NVARCHAR(765))\n\t,[OFF_Limits_Reason__c]\n\t,[OFF_Limits__c]\n\t,[Tax_Id_Number__c]\n\t,[Twitter__c]\n\t,[Number_of_Employees__c]\n\t,[Account_type__c]\n\t,[Active_Risks__c]\n\t,[Exclude_From_RM__c]\n\t,[Lead_ID__c]\n\t,[RM_Completed__c]\n\t,[RM_Passed__c]\n\t,[RM__c]\n\t,[Risks_Accepted__c]\n\t,[Bad_Debt__c]\n\t,[Benefit__c]\n\t,[Challenge__c]\n\t,[Competitor__c]\n\t,[Expose_Opportunities__c]\n\t,[New_Opportunities__c]\n\t,[Possible_Changes__c]\n\t,[Product_Service_Weakness__c]\n\t,[RM_Expired__c]\n\t,[RM_Expiring_Soon__c]\n\t,[Reason_of_Not_buying__c]\n\t,[Status_Track__c]\n\t,[Status_Update_Date__c]\n\t,[Status__c]\n\t,[Uniqueness__c]\n\t,[DOZISF__ZoomInfo_First_Updated__c]\n\t,[DOZISF__ZoomInfo_Id__c]\n\t,[DOZISF__ZoomInfo_Last_Updated__c]\n\t,[Number_Of_Won_Opportunities__c]\n\t,[First_Contract_Date__c]\n\t,[Owned_By_My__c]\n\t,[Account_Number__c]\n\t,[Bullhorn_Id__c]\n\t,[Projectile_Customer_Code__c]\n\t,[Projectile_Customer_Number__c]\n\t,[Annual_Employee_Growth__c]\n\t,[Annual_Revenue__c]\n\t,[Funding__c]\n\t,[Google_Drive_Id__c]\n\t,[Google_Drive_Link__c]\n\t,[Account_Gdrive_folder__c]\n\t,[Lead_Converted__c]\n\t,[Executive_Sponsor__c]\n\t,[Revenue_Exposure__c]\n\t,[Growth_Potential__c]\n\t,[Tier__c]\nFROM [GLO_Salesforce].[Account]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "TRUNCATE TABLE [GLO_Salesforce].[Account];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DLS_DatalakeRep",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "GLO_Salesforce",
+                                    "TableName": "Account"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_DLD_DatalakeDev",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "GLO_Salesforce",
+                                    "TableName": "Account"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Salesforce"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:20Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_SalesforceRecordType')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy SF RecordType",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT [Id]\n      ,[Name]\n      ,[BusinessProcessId]\n      ,[SobjectType]\n      ,[IsActive]\n  FROM [GLO_Salesforce].[RecordType]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "TRUNCATE TABLE [stage].[SalesforceRecordType];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "GLO_Salesforce",
+                                    "TableName": "RecordType"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "SalesforceRecordType"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Salesforce"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_BullhornLead')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Lead",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "select \n\t[clientCorporationID],\n\t[companyName],\n\t[customText1], \n\t[occupation],\n        [stageCreatedDate] = CAST(GETDATE() AS DATE),\n\t[stageCreatedDateTime] = GETDATE(),\n\t[dateLastModified]\nfrom \n\t[PL_Bullhorn_dbo].[Lead]\n",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "DELETE FROM [stage].[BullhornLeadHistory]\nWHERE stageCreatedDate = cast(getdate() as date)\n",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "PL_Bullhorn_dbo",
+                                    "TableName": "Lead"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "BullhornLeadHistory"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Bullhorn"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:20Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_Projectile_Project')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Project",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT [sysNoTs]\n      ,[sysClientId]\n      ,[sysUnique]\n      ,[sysAccess]\n      ,[sysAccessRights]\n      ,[sysCreated]\n      ,[sysCreatedBy]\n      ,[sysChanged]\n      ,[sysChangedBy]\n      ,[pProject]\n      ,[pNumber]\n      ,[pDescription]\n      ,[pProjectBeginDatePlanning]\n      ,[pProjectEndDatePlanning]\n      ,[pExternal]\n      ,[pProductionEffort]\n      ,[pCustomer]\n      ,[capCustomer]\n      ,[pContact]\n      ,[capContact]\n      ,[pUnit]\n      ,[capUnit]\n      ,[pParentProject]\n      ,[capParentProject]\n      ,[pContact2]\n      ,[capContact2]\n      ,[pContact3]\n      ,[capContact3]\n      ,[pResponsible]\n      ,[capResponsible]\n      ,[pBeginTime]\n      ,[pEndTime]\n      ,[pTargetTime]\n      ,[pProjectTimePlanning]\n      ,[pActualTime]\n      ,[pActive]\n      ,[pResourceClearance]\n      ,[pLastActivityChange]\n      ,[pLastActivityChangePassive]\n      ,[pLastActivityChangeActive]\n      ,[pLastActivityChangeClosed]\n      ,[pPriority]\n      ,[pPortfolio]\n      ,[capPortfolio]\n      ,[pPrograms]\n      ,[capPrograms]\n      ,[pCurrency]\n      ,[capCurrency]\n      ,[pRate]\n      ,[pHourlyPrice]\n      ,[pJobPriceExternal]\n      ,[capJobPriceExternal]\n      ,[pHoursPerManDay]\n      ,[pTradeDiscount]\n      ,[pSurchargeForWorkCost]\n      ,[pOfferValueRevenue]\n      ,[pOfferValueCosts]\n      ,[pOfferValueProfit]\n      ,[pOfferValueProfitP]\n      ,[pOrderValueRevenue]\n      ,[pOrderValueCosts]\n      ,[pOrderValueProfit]\n      ,[pOrderValueProfitP]\n      ,[pTypeCommision]\n      ,[pBudget]\n      ,[pOrderNumber]\n      ,[pFixPriceShare]\n      ,[pProjectBudget]\n      ,[pProjectWorkCost]\n      ,[pProjectMiscCost]\n      ,[pProjectCostPlanning]\n      ,[pCurrentOfferAmountBrutto]\n      ,[pCurrentInvoiceAmountBrutto]\n      ,[pActualCost]\n      ,[pTrackedCost]\n      ,[pDiffPlanActual]\n      ,[pProfitability]\n      ,[pCostUnit]\n      ,[pOrderDate]\n      ,[pPaymentTerms]\n      ,[pCostCenter]\n      ,[pBillingType]\n      ,[pBillingFlatAmount]\n      ,[pDailyFlatAmount]\n      ,[pCategory]\n      ,[pCategory2]\n      ,[pCategory3]\n      ,[pCategory4]\n      ,[pCategory5]\n      ,[pProbability]\n      ,[pTopProject]\n      ,[capTopProject]\n      ,[pCostUnitProject]\n      ,[pCategory6]\n      ,[pCategory7]\n      ,[pCurrentOrderAmountNetto]\n      ,[pCurrentOrderAmountBrutto]\n      ,[pBilledTime]\n      ,[pTimeToCompletion]\n      ,[pLimitTimeTracking]\n      ,[pFixed]\n      ,[pMSProjectId]\n      ,[pMSProjectDuration]\n      ,[pSortIndex]\n      ,[pPreventProjectPlanning]\n      ,[pFlatProjectAccess]\n      ,[pCheckedAssessTime]\n      ,[pCheckedTrackedTime]\n      ,[pLimitTimeProcess]\n      ,[pLimitTrackBegin]\n      ,[pLimitTrackEnd]\n      ,[pNote]\n      ,[pOrderCompany]\n      ,[pOOInvoiceTemplate]\n      ,[ReportSelTimeSheet]\n      ,[pIncomingOrder]\n      ,[pPaymentPeriod]\n      ,[pSurchargeProjectManagement]\n      ,[pSurchargeRisk]\n      ,[pSurchargeFixedPrice]\n      ,[pSumProjectSurcharges]\n      ,[pRevenuePrim]\n      ,[pCostsPrim]\n      ,[pProfitPrim]\n      ,[pProfitPercentPrim]\n      ,[pRevenueInternalPrim]\n      ,[pCostsInternalPrim]\n      ,[pProfitInternalPrim]\n      ,[pProfitPercentInternalPrim]\n      ,[pRevenueExternalPrim]\n      ,[pCostsExternalPrim]\n      ,[pProfitExternalPrim]\n      ,[pProfitPercentExternalPrim]\n      ,[pRevenueTotal]\n      ,[pCostsTotal]\n      ,[pProfitTotal]\n      ,[pProfitPercentTotal]\n      ,[pSurchargeFixedPriceAbs]\n      ,[pSurchargeRiskAbs]\n      ,[pSurchargeManagementAbs]\n      ,[pRevenueTotalFinal]\n      ,[pProfitTotalFinal]\n      ,[pCurrentOfferAmountNetto]\n      ,[pCurrentInvoiceAmountNetto]\n      ,[pProfitPercentTotalFinal]\n      ,[pOriginalCampaign]\n      ,[capOriginalCampaign]\n      ,[pStartBudget]\n      ,[pExternalCosts]\n      ,[pInternalCosts]\n      ,[pFreeBudget]\n      ,[pRiskTotalSum]\n      ,[pRiskCSTSum]\n      ,[pRiskCST001]\n      ,[pRiskCST002]\n      ,[pRiskCST003]\n      ,[pRiskCST004]\n      ,[pRiskCST005]\n      ,[pRiskECOSum]\n      ,[pRiskECO001]\n      ,[pRiskECO002]\n      ,[pRiskECO003]\n      ,[pRiskECO004]\n      ,[pRiskECO005]\n      ,[pRiskRESSum]\n      ,[pRiskRES001]\n      ,[pRiskRES002]\n      ,[pRiskRES003]\n      ,[pRiskRES004]\n      ,[pRiskRES005]\n      ,[pRiskIMPSum]\n      ,[pRiskIMP001]\n      ,[pRiskIMP002]\n      ,[pRiskIMP003]\n      ,[pRiskIMP004]\n      ,[pRiskIMP005]\n      ,[pCashDiscount]\n      ,[pRestTimeState]\n      ,[pOrderNumber2]\n      ,[pNumberOld]\n      ,[pInventoryTurnover]\n      ,[pPotConfValue]\n      ,[pContingent]\n      ,[pAddCopyOfReceipts]\n      ,[pBsmFlag]\n      ,[pLimitTimeProject]\n      ,[pCreatedBaseline]\n      ,[capCreatedBaseline]\n      ,[pEffortEstimationCheck]\n      ,[pEffortEstimationDescription]\n      ,[pOfferCheck]\n      ,[pOfferDescription]\n      ,[pPOCheck]\n      ,[pPODescription]\n      ,[pInternalKikOffCheck]\n      ,[pInternalKickOffDescription]\n      ,[pIBPChecklistCheck]\n      ,[pIBPChecklistDescription]\n      ,[pExternalKickOffCheck]\n      ,[pExternalKickOffDescription]\n      ,[pUXConceptCheck]\n      ,[pUXConceptDescription]\n      ,[pDecreasedTechnicalConceptCheck]\n      ,[pDecreasedTechnicalConceptDescription]\n      ,[pBacklogCheck]\n      ,[pBacklogDescription]\n      ,[pTestplanCheck]\n      ,[pTestplanDescription]\n      ,[pQSRealeaseCheck]\n      ,[pQSRealeaseDescription]\n      ,[pCustomerAcceptanceCheck]\n      ,[pCustomerAcceptanceDescription]\n      ,[pFinishedProjectReportCheck]\n      ,[pFinishedProjectReportDescription]\n      ,[pKeyAccountManager]\n      ,[capKeyAccountManager]\n      ,[pReporting]\n      ,[pHideTimeline]\n      ,[pLastTrackingRestriction]\n      ,[pSurchargeManagement]\n      ,[pBudgetSubInternalSum]\n      ,[pBudgetSubExternalSum]\n      ,[pBudgetSubDifference]\n      ,[pSurchargeSubFixedPriceAbs]\n      ,[pSurchargeSubRiskAbs]\n      ,[pSurchargeSubManagementAbs]\n      ,[pSurchargeFixedPriceAbsSum]\n      ,[pSurchargeRiskAbsSum]\n      ,[pSurchargeManagementAbsSum]\n      ,[pProjectCategory]\n\t  ,cast(getdate() as date) as [stageCreatedDate]\n\t  ,getdate() as [stageCreatedDateTime]\n  FROM [projectile].[tproject]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": " DELETE FROM [stage].[ProjectileTprojectHistory]\nWHERE cast([stageCreatedDate] as Date) = cast(GETDATE() as Date)",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "projectile",
+                                    "TableName": "tproject"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "ProjectileTprojectHistory"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Projecttile"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:20Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_Projectile_TimeBit')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy ttimebit",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT  [sysNoTs]\n      ,[sysClientId]\n      ,[sysUnique]\n      ,[sysAccess]\n      ,[sysAccessRights]\n      ,[sysCreated]\n      ,[sysCreatedBy]\n      ,[sysChanged]\n      ,[sysChangedBy]\n      ,[pId]\n      ,[pDate]\n      ,[pJob]\n      ,[capJob]\n      ,[pTime]\n      ,[pStart]\n      ,[pEnd]\n      ,substring([pNote],1, 4000) as [pNote]\n      ,substring([pInternalNote], 1, 4000) as [pInternalNote] \n      ,[pChecked]\n      ,[pBilled]\n      ,[pRunning]\n      ,[pIndustrialTime]\n      ,[pAssessableTime]\n      ,[pNormalizedTime]\n      ,[pInvoiceHeader]\n      ,[capInvoiceHeader]\n      ,[pInvoiceLine]\n      ,[capInvoiceLine]\n      ,[pCustomer]\n      ,[capCustomer]\n      ,[pOccupation]\n      ,[capOccupation]\n      ,[pTicket]\n      ,[capTicket]\n      ,[pLocation]\n      ,[pCostUnit]\n      ,[capCostUnit]\n      ,[pContract]\n      ,[capContract]\n      ,[pBsmFlag]\n      ,[pForeignInvoice]\n      ,[capForeignInvoice]\n      ,cast(getdate() as date) as [stageCreatedDate]\n      ,getdate() as [stageCreatedDateTime]\n  FROM [projectile].[ttimebit]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": " DELETE FROM [stage].[ProjectileTtimebitHistory]\nWHERE cast([stageCreatedDate] as Date) = cast(GETDATE() as Date)",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "Projectile",
+                                    "TableName": "ttimebit"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "ProjectileTtimebitHistory"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Projecttile"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_BullhornCorporateUser')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy CorporateUser",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT [userID]\n      ,[email]\n      ,[email2]\n      ,[email3]\n      ,cast(getdate() as date) as [stageCreatedDate]\n      ,getdate() as [stageCreatedDateTime]\t\n\t  ,[firstName]\n\t  ,[lastName]\n\t  ,[occupation]\n  FROM \n\t[PL_Bullhorn_dbo].[CorporateUser]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "DELETE FROM [stage].[BullhornCorporateUserHistory]\n\tWHERE stageCreatedDate = cast(getdate() as date)",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "PL_Bullhorn_dbo",
+                                    "TableName": "CorporateUser"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "BullhornCorporateUserHistory"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Bullhorn"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_BullhornCandidate')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Candidate",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "select \n\t[companyName],\n\t[customInt10],\n\t[customDate1], \n\t[customDate2], \n\t[customDate7],\n\t[customText1],\n\t[customText2],\n\t[customText3], \n\t[customText7],\n\t[customText8],\n\t[customText9],\n\t[customText10],\n\t[customText11],\n\t[customText12],\n\t[customText13],\n\t[customText14],\n\t[customText15],\n\t[email],\n\t[email2],\n\t[email3],\t\n\t[hourlyRate],\n\t[occupation],\n\t[referredBy],\n\t[salary],\n\t[referredByPersonID],\n\tsubstring([skillSet],1,4000) as [skillSet],\n\tcast(getdate() as date) as [stageCreatedDate],\n\tgetdate() as [stageCreatedDateTime]\nfrom \n\t[PL_Bullhorn_dbo].[Candidate]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "DELETE FROM [stage].[BullhornCandidateHistory]\n\tWHERE [stageCreatedDate] = cast(getdate() as date)",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "PL_Bullhorn_dbo",
+                                    "TableName": "Candidate"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "BullhornCandidateHistory"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Bullhorn"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_BullhornOpportunity')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Opportunity",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "select \n\t[actualCloseDate],\n\t[assignedDate],\n\t[clientCorporationID],\n\t[customText1],\n\t[dealValue],\n\t[estimatedEndDate],\n\t[estimatedStartDate],\n\t[expectedCloseDate],\n\t[numOpenings],\n\t[status],\n\t[type],\n\t[opportunityID],\n\t[title],\n\t[ownerID],\n\t[winProbabilityPercent],\n\t[dateAdded],\n\t[estimatedDuration],\n\t[effectiveDate],\n\t[IsDeleted],\n        [stageCreatedDate] = CAST(GETDATE() AS DATE),\n\t[stageCreatedDateTime] = GETDATE(),\n\t[dateLastModified]\nfrom \n\t[PL_Bullhorn_dbo].[Opportunity]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "DELETE FROM [stage].[BullhornOpportunityHistory]\nWHERE stageCreatedDate = cast(getdate() as date)",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "PL_Bullhorn_dbo",
+                                    "TableName": "Opportunity"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "BullhornOpportunityHistory"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Bullhorn"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:18Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_BullhornClientCorporation')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy ClientCorporation",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT \n\tsubstring(businessSectorList, 1, 4000) as businessSectorList,\n\tcustomInt1,\n\tcustomText1,\n\tcustomText2,\n\tcustomText3,\n\tcustomText4,\n\tcustomText10,\n\tsubstring(notes, 1, 4000) as notes,\n\tparentClientCorporationID,\n\tclientCorporationID,\n\tcountryName,\n\tname,\n\tstatus,\n\t  cast(getdate() as date) as [stageCreatedDate],\n\t  getdate() as [stageCreatedDateTime]\nFROM \n\t[PL_Bullhorn_dbo].[ClientCorporation]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "DELETE FROM [stage].[BullhornClientCorporationHistory]\n\tWHERE stageCreatedDate = cast(getdate() as date)",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "PL_Bullhorn_dbo",
+                                    "TableName": "ClientCorporation"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "BullhornClientCorporationHistory"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Bullhorn"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:18Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_BullhornJobOrder')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy JobOrder",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT \n\t[clientBillRate],\n\t[clientCorporationID],\n\t[correlatedCustomText2],\n\t[customDate1],\n\t[customInt2],\n\t[customText1],\n\t[customText2],\n\t[customText3],\n\t[customText4],\n\t[customText5],\n\t[customText10],\n\t[customText11],\n\tsubstring([degreeList], 1, 4000) as [degreeList],\n\t[employmentType],\n\t[feeArrangement],\n\t[salaryUnit],\n\t[taxRate],\n\t[yearsRequired],\n\tsubstring([skillList], 1, 4000) as [skillList],\n        [stageCreatedDate] = CAST(GETDATE() AS DATE),\n\t[stageCreatedDateTime] = GETDATE(),\n\t[ownerID],\n\t[opportunityID],\n\t[jobOrderID],\n\t[dateAdded],\n\t[dateEnd],\n\t[status],\n\t[startDate],\n\t[title],\n        [isDeleted],\n        [salary],\n        [numOpenings],\n\t[dateLastModified]\n  FROM \n\t[PL_Bullhorn_dbo].[JobOrder]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "DELETE FROM [stage].[BullhornJobOrderHistory]\n\tWHERE stageCreatedDate = cast(getdate() as date)",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "PL_Bullhorn_dbo",
+                                    "TableName": "JobOrder"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "BullhornJobOrderHistory"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Bullhorn"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        }
+    ]
+}

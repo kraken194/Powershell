@@ -1,0 +1,1924 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "adf-avenga-analytics-dev"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Dim_EmployeeCar')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Employee Car Dimension",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadEmployeeCarCorebaseUA]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Dim_EmployeeKid')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Employee Kid Dimension",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadEmployeeKidCorebaseUA]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Dim_EmployeeVisa')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Employee Visa Dimension",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadEmployeeVisaCorebaseUA]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Fact_EmployeeCertification')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Employee Certification Fact",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadFactEmployeeCertificationCorebaseUA]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Dim_EmployeePassport')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Employee Passport Dimension",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadEmployeePassportCorebaseUA]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_CompetencyMatrixEnglishSkills')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Competency Matrix English Skills",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadCompetencyMatrixEnglishSkills]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:17Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Fact_LanguageReview')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Load Fact Language Review",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "storedProcedureName": "[[dbo].[LoadFactLanguageReviewCorebaseUA]",
+                            "storedProcedureParameters": {
+                                "ParentProcessTree": {
+                                    "value": {
+                                        "value": "@pipeline().parameters.LogProcessTree",
+                                        "type": "Expression"
+                                    },
+                                    "type": "String"
+                                }
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_ASDW_AnalyticsDWH",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "LogProcessTree": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:16Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_GoogleUsers')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy GoogleUsers",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT [id]\n      ,[email]\n      ,[givenName]\n      ,[familyName]\n      ,[fullName]\n      ,[suspended]\n      ,[relations]\n      ,[addresses]\n      ,[organizations]\n      ,[Tier]\n      ,[Competency]\n  FROM [gsuite].[GoogleUsers]\n  WHERE ([organizations] IS NULL OR [organizations] NOT LIKE '%description\":\"Non-employee\"%')",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "TRUNCATE TABLE [stage].[GoogleUsers];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "name": "id",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "id",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "email",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "email",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "givenName",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "givenName",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "familyName",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "familyName",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "fullName",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "fullName",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "suspended",
+                                            "type": "Boolean"
+                                        },
+                                        "sink": {
+                                            "name": "suspended",
+                                            "type": "Boolean"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "relations",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "relations",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "addresses",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "addresses",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "organizations",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "organizations",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Tier",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "Tier",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Competency",
+                                            "type": "String"
+                                        },
+                                        "sink": {
+                                            "name": "Competency",
+                                            "type": "String"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "gsuite",
+                                    "TableName": "GoogleUsers"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "GoogleUsers"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "If first day of month",
+                        "type": "IfCondition",
+                        "dependsOn": [
+                            {
+                                "activity": "Copy GoogleUsers",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "expression": {
+                                "value": "@equals(dayOfMonth(utcnow()), pipeline().parameters.HistorySaveDay)",
+                                "type": "Expression"
+                            },
+                            "ifTrueActivities": [
+                                {
+                                    "name": "Copy GoogleUsers History",
+                                    "description": "Save google users history on the first day of month.",
+                                    "type": "Copy",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "7.00:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "source": {
+                                            "type": "AzureSqlSource",
+                                            "sqlReaderQuery": "SELECT [id]\n      ,[email]\n      ,[givenName]\n      ,[familyName]\n      ,[fullName]\n      ,[suspended]\n      ,[relations]\n      ,[addresses]\n      ,[organizations]\n      ,[Tier]\n      ,[Competency]\n\t  ,[VersionDate] = DATEFROMPARTS (YEAR(GETDATE()), MONTH(GETDATE()), 1)\n  FROM [gsuite].[GoogleUsers]\n  WHERE ([organizations] IS NULL OR [organizations] NOT LIKE '%description\":\"Non-employee\"%')",
+                                            "queryTimeout": "02:00:00",
+                                            "partitionOption": "None"
+                                        },
+                                        "sink": {
+                                            "type": "SqlDWSink",
+                                            "preCopyScript": "DELETE FROM [stage].[GoogleUsersHistory]\nWHERE [VersionDate] = DATEFROMPARTS (YEAR(GETDATE()), MONTH(GETDATE()), 1)",
+                                            "disableMetricsCollection": false
+                                        },
+                                        "enableStaging": false,
+                                        "translator": {
+                                            "type": "TabularTranslator",
+                                            "mappings": [
+                                                {
+                                                    "source": {
+                                                        "name": "id",
+                                                        "type": "String",
+                                                        "physicalType": "varchar"
+                                                    },
+                                                    "sink": {
+                                                        "name": "id",
+                                                        "type": "String",
+                                                        "physicalType": "varchar"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "email",
+                                                        "type": "String",
+                                                        "physicalType": "nvarchar"
+                                                    },
+                                                    "sink": {
+                                                        "name": "email",
+                                                        "type": "String",
+                                                        "physicalType": "nvarchar"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "givenName",
+                                                        "type": "String",
+                                                        "physicalType": "nvarchar"
+                                                    },
+                                                    "sink": {
+                                                        "name": "givenName",
+                                                        "type": "String",
+                                                        "physicalType": "nvarchar"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "familyName",
+                                                        "type": "String",
+                                                        "physicalType": "nvarchar"
+                                                    },
+                                                    "sink": {
+                                                        "name": "familyName",
+                                                        "type": "String",
+                                                        "physicalType": "nvarchar"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "fullName",
+                                                        "type": "String",
+                                                        "physicalType": "nvarchar"
+                                                    },
+                                                    "sink": {
+                                                        "name": "fullName",
+                                                        "type": "String",
+                                                        "physicalType": "nvarchar"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "suspended",
+                                                        "type": "Boolean",
+                                                        "physicalType": "bit"
+                                                    },
+                                                    "sink": {
+                                                        "name": "suspended",
+                                                        "type": "Boolean",
+                                                        "physicalType": "bit"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "relations",
+                                                        "type": "String",
+                                                        "physicalType": "nvarchar"
+                                                    },
+                                                    "sink": {
+                                                        "name": "relations",
+                                                        "type": "String",
+                                                        "physicalType": "nvarchar"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "addresses",
+                                                        "type": "String",
+                                                        "physicalType": "nvarchar"
+                                                    },
+                                                    "sink": {
+                                                        "name": "addresses",
+                                                        "type": "String",
+                                                        "physicalType": "nvarchar"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "organizations",
+                                                        "type": "String",
+                                                        "physicalType": "nvarchar"
+                                                    },
+                                                    "sink": {
+                                                        "name": "organizations",
+                                                        "type": "String",
+                                                        "physicalType": "nvarchar"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "Tier",
+                                                        "type": "String",
+                                                        "physicalType": "varchar"
+                                                    },
+                                                    "sink": {
+                                                        "name": "Tier",
+                                                        "type": "String",
+                                                        "physicalType": "varchar"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "Competency",
+                                                        "type": "String",
+                                                        "physicalType": "nvarchar"
+                                                    },
+                                                    "sink": {
+                                                        "name": "Competency",
+                                                        "type": "String",
+                                                        "physicalType": "nvarchar"
+                                                    }
+                                                },
+                                                {
+                                                    "source": {
+                                                        "name": "VersionDate",
+                                                        "type": "DateTime",
+                                                        "physicalType": "date"
+                                                    },
+                                                    "sink": {
+                                                        "name": "VersionDate",
+                                                        "type": "DateTime",
+                                                        "physicalType": "date"
+                                                    }
+                                                }
+                                            ],
+                                            "typeConversion": true,
+                                            "typeConversionSettings": {
+                                                "allowDataTruncation": true,
+                                                "treatBooleanAsNumber": false
+                                            }
+                                        }
+                                    },
+                                    "inputs": [
+                                        {
+                                            "referenceName": "DS_DL_Database",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "SchemaName": "gsuite",
+                                                "TableName": "GoogleUsers"
+                                            }
+                                        }
+                                    ],
+                                    "outputs": [
+                                        {
+                                            "referenceName": "DS_ADWH_Database",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "SchemaName": "stage",
+                                                "TableName": "GoogleUsersHistory"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "HistorySaveDay": {
+                        "type": "int",
+                        "defaultValue": 1
+                    }
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/GSuite"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DL_GoogleUsers')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Get_GSA_PrivateKey",
+                        "description": "Get google service account private key",
+                        "type": "WebActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": true,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://', pipeline().parameters.KeyVaultName, '.vault.azure.net/secrets/GoogleServiceAccountPrivateKey?api-version=7.0')",
+                                "type": "Expression"
+                            },
+                            "method": "GET",
+                            "headers": {},
+                            "authentication": {
+                                "type": "MSI",
+                                "resource": "https://vault.azure.net"
+                            }
+                        }
+                    },
+                    {
+                        "name": "Get_GSA_Auth_Token",
+                        "type": "AzureFunctionActivity",
+                        "dependsOn": [
+                            {
+                                "activity": "Get_GSA_PrivateKey",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "functionName": "GetGoogleServiceAccountAuthToken",
+                            "method": "POST",
+                            "headers": {},
+                            "body": {
+                                "value": "{\"private_key\":\"@{activity('Get_GSA_PrivateKey').output.value}\",\"client_email\":\"@{pipeline().parameters.ParamClientEmail}\",\"user\":\"@{pipeline().parameters.ParamUserEmail}\",\"scopes\":[\"https://www.googleapis.com/auth/admin.directory.user.readonly\"]}",
+                                "type": "Expression"
+                            }
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "LS_AF_AvengaAnaliticsFuncApp",
+                            "type": "LinkedServiceReference"
+                        }
+                    },
+                    {
+                        "name": "Copy Google Users",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "Get_GSA_Auth_Token",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "RestSource",
+                                "httpRequestTimeout": "00:01:40",
+                                "requestInterval": "00.00:00:00.010",
+                                "requestMethod": "GET",
+                                "additionalHeaders": {
+                                    "Authorization": {
+                                        "value": "@concat('Bearer ', activity('Get_GSA_Auth_Token').output.access_token)",
+                                        "type": "Expression"
+                                    }
+                                },
+                                "paginationRules": {
+                                    "QueryParameters.pageToken": "$.nextPageToken"
+                                }
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "TRUNCATE TABLE [gsuite].[GoogleUsers]",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "path": "[['id']"
+                                        },
+                                        "sink": {
+                                            "name": "id",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['primaryEmail']"
+                                        },
+                                        "sink": {
+                                            "name": "email",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['name']['givenName']"
+                                        },
+                                        "sink": {
+                                            "name": "givenName",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['name']['familyName']"
+                                        },
+                                        "sink": {
+                                            "name": "familyName",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['name']['fullName']"
+                                        },
+                                        "sink": {
+                                            "name": "fullName",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['suspended']"
+                                        },
+                                        "sink": {
+                                            "name": "suspended",
+                                            "type": "Boolean"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['relations']"
+                                        },
+                                        "sink": {
+                                            "name": "relations",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['organizations']"
+                                        },
+                                        "sink": {
+                                            "name": "organizations",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['addresses']"
+                                        },
+                                        "sink": {
+                                            "name": "addresses",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['customSchemas']['HR-Data']['Tier']"
+                                        },
+                                        "sink": {
+                                            "name": "Tier",
+                                            "type": "String"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "path": "[['customSchemas']['HR-Data']['Competency']"
+                                        },
+                                        "sink": {
+                                            "name": "Competency",
+                                            "type": "String"
+                                        }
+                                    }
+                                ],
+                                "collectionReference": "$['users']",
+                                "mapComplexValuesToString": true
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_API_GoogleAdmin",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "API_URL": "https://www.googleapis.com/admin/directory/v1/users?customer=my_customer&maxResults=50&projection=full"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "gsuite",
+                                    "TableName": "GoogleUsers"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "KeyVaultName": {
+                        "type": "string",
+                        "defaultValue": "kv-avenga-analytics-dev"
+                    },
+                    "ParamClientEmail": {
+                        "type": "string",
+                        "defaultValue": "avenga-dwh-account@avengadwh.iam.gserviceaccount.com"
+                    },
+                    "ParamUserEmail": {
+                        "type": "string",
+                        "defaultValue": "avenga.dwh.account@avenga.com"
+                    }
+                },
+                "folder": {
+                    "name": "DataLake"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:18Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_GoogleUsers')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Scrambled GoogleUsers",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "DECLARE @sj TABLE (id nvarchar(64), [relations] nvarchar(1000), [key] int, [manager] nvarchar(64), rn int, rnd int)\n\nINSERT INTO @sj\nSELECT\n\tgu.[id]\n\t, gu.[relations]\n\t, item.[key]\n\t, CONCAT(CONVERT(NVARCHAR(32), HashBytes('MD5', LEFT(mgu.[email], CHARINDEX('@', mgu.[email]) - 1)), 2),\n\t\tCASE\n\t\t\tWHEN RIGHT(mgu.[email], LEN(mgu.[email]) - CHARINDEX('@', mgu.[email])) = 'avenga.com' THEN '@avenga.com.dev'\n\t\t\tELSE RIGHT(mgu.[email], LEN(mgu.[email]) - CHARINDEX('@', mgu.[email]) + 1)\n\t\tEND) AS [manager]\n\t, ROW_NUMBER() OVER (PARTITION BY gu.id ORDER BY item.[key]) AS rn\n\t, ROW_NUMBER() OVER (PARTITION BY gu.id ORDER BY item.[key] desc) AS rnd\nFROM [gsuite].[GoogleUsers]  gu\n\tOUTER APPLY OPENJSON( gu.[relations] ) AS item\n\tOUTER APPLY OPENJSON( item.[value] ) WITH ( [type] nvarchar(64) '$.type', [value] nvarchar(64) '$.value') r \n\tLEFT JOIN [gsuite].[GoogleUsers] mgu ON mgu.[email] = r.[value]\nWHERE r.[type] = 'manager'\n;WITH sm AS(\n  SELECT [id], [rn], [rnd], JSON_MODIFY([relations], CONCAT('$[', CAST([key] AS INT), '].value'), [manager]) as [relations]   \n  FROM @sj WHERE RN = 1\n  UNION ALL\n  SELECT x.[id], x.[rn], x.[rnd], JSON_MODIFY(sm.[relations], CONCAT('$[', CAST(x.[key] AS INT), '].value'), x.[manager]) \n  FROM @sj as x INNER JOIN sm ON x.[id] = sm.[id]  AND x.[rn] = (sm.[rn] + 1)\n)\nSELECT \n\t [id] = u.[id]\n\t,[email] =\n\t\tCONCAT(CONVERT(NVARCHAR(32), HashBytes('MD5', LEFT(u.[email], CHARINDEX('@', u.[email]) - 1)), 2),\n\t\t\tCASE\n\t\t\t\tWHEN RIGHT(u.[email], LEN(u.[email]) - CHARINDEX('@', u.[email])) = 'avenga.com' THEN '@avenga.com.dev'\n\t\t\t\tELSE RIGHT(u.[email], LEN(u.[email]) - CHARINDEX('@', u.[email]) + 1)\n\t\t\tEND)\n\t,[givenName] = CONVERT(NVARCHAR(32), HashBytes('MD5', u.[givenName]), 2)\n\t,[familyName] = CONVERT(NVARCHAR(32), HashBytes('MD5', u.[familyName]), 2)\n\t,[fullName] = CONVERT(NVARCHAR(32), HashBytes('MD5', u.[fullName]), 2)\n\t,[suspended] = u.[suspended]\n\t,[relations] = ISNULL(sm.[relations], u.[relations])\n\t,[addresses] = u.[addresses]\n\t,[organizations] = u.[organizations]\n\t,[Tier] = u.[Tier]\n\t,[Competency] = u.[Competency]\nFROM [gsuite].[GoogleUsers] u\nLEFT JOIN sm ON u.id = sm.id AND sm.rnd = 1",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "TRUNCATE TABLE [gsuite].[GoogleUsers];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DLS_DatalakeRep",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "gsuite",
+                                    "TableName": "GoogleUsers"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_DLD_DatalakeDev",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "gsuite",
+                                    "TableName": "GoogleUsers"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "DataLakeScramble/Google"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_RefreshDatabaseSchema')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "GetTables",
+                        "type": "Lookup",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": {
+                                    "value": "@concat('SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = ''BASE TABLE'' ', if(equals(pipeline().parameters.SchemaName, null) , '', concat('AND TABLE_SCHEMA = ''', pipeline().parameters.SchemaName, '''')))",
+                                    "type": "Expression"
+                                },
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "DS_DLS_DatalakeRep",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "gsuite",
+                                    "TableName": "GoogleUsers"
+                                }
+                            },
+                            "firstRowOnly": false
+                        }
+                    },
+                    {
+                        "name": "ForEachTable",
+                        "type": "ForEach",
+                        "dependsOn": [
+                            {
+                                "activity": "GetTables",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@activity('GetTables').output.value",
+                                "type": "Expression"
+                            },
+                            "batchCount": 50,
+                            "activities": [
+                                {
+                                    "name": "RecreateTableSchema",
+                                    "type": "Copy",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "7.00:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "source": {
+                                            "type": "AzureSqlSource",
+                                            "sqlReaderQuery": {
+                                                "value": "@concat('SELECT * FROM [', item().TABLE_SCHEMA, '].[', item().TABLE_NAME, '] WHERE 1=2')",
+                                                "type": "Expression"
+                                            },
+                                            "queryTimeout": "02:00:00",
+                                            "partitionOption": "None"
+                                        },
+                                        "sink": {
+                                            "type": "AzureSqlSink",
+                                            "preCopyScript": {
+                                                "value": "@{concat('IF NOT EXISTS (SELECT * FROM sys.schemas WHERE  name = N''', item().TABLE_SCHEMA, ''') ', 'EXEC(''CREATE SCHEMA [',  item().TABLE_SCHEMA,'] AUTHORIZATION [dbo]''); ','\n', 'IF OBJECT_ID(''', item().TABLE_SCHEMA,'.', item().TABLE_NAME, ''', ''U'') IS NOT NULL DROP TABLE [', item().TABLE_SCHEMA, '].[', item().TABLE_NAME, '];')}",
+                                                "type": "Expression"
+                                            },
+                                            "tableOption": "autoCreate",
+                                            "disableMetricsCollection": false
+                                        },
+                                        "enableStaging": false,
+                                        "translator": {
+                                            "type": "TabularTranslator",
+                                            "typeConversion": true,
+                                            "typeConversionSettings": {
+                                                "allowDataTruncation": true,
+                                                "treatBooleanAsNumber": false
+                                            }
+                                        }
+                                    },
+                                    "inputs": [
+                                        {
+                                            "referenceName": "DS_DLS_DatalakeRep",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "SchemaName": {
+                                                    "value": "@item().TABLE_SCHEMA",
+                                                    "type": "Expression"
+                                                },
+                                                "TableName": {
+                                                    "value": "@item().TABLE_NAME",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "outputs": [
+                                        {
+                                            "referenceName": "DS_DLD_DatalakeDev",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "SchemaName": {
+                                                    "value": "@item().TABLE_SCHEMA",
+                                                    "type": "Expression"
+                                                },
+                                                "TableName": {
+                                                    "value": "@item().TABLE_NAME",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "SchemaName": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "DataLakeScramble"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:18Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_DLS_CopyData')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "ForEach Tables",
+                        "type": "ForEach",
+                        "dependsOn": [],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@pipeline().parameters.Tables",
+                                "type": "Expression"
+                            },
+                            "batchCount": 50,
+                            "activities": [
+                                {
+                                    "name": "Copy Table Data",
+                                    "type": "Copy",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "7.00:00:00",
+                                        "retry": 1,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "source": {
+                                            "type": "AzureSqlSource",
+                                            "queryTimeout": "02:00:00",
+                                            "partitionOption": "None"
+                                        },
+                                        "sink": {
+                                            "type": "AzureSqlSink",
+                                            "preCopyScript": {
+                                                "value": "@{concat('TRUNCATE TABLE [', item().schema, '].[', item().table, ']')}",
+                                                "type": "Expression"
+                                            },
+                                            "disableMetricsCollection": false
+                                        },
+                                        "enableStaging": false,
+                                        "translator": {
+                                            "type": "TabularTranslator",
+                                            "typeConversion": true,
+                                            "typeConversionSettings": {
+                                                "allowDataTruncation": true,
+                                                "treatBooleanAsNumber": false
+                                            }
+                                        }
+                                    },
+                                    "inputs": [
+                                        {
+                                            "referenceName": "DS_DLS_DatalakeRep",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "SchemaName": {
+                                                    "value": "@item().schema",
+                                                    "type": "Expression"
+                                                },
+                                                "TableName": {
+                                                    "value": "@item().table",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "outputs": [
+                                        {
+                                            "referenceName": "DS_DLD_DatalakeDev",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "SchemaName": {
+                                                    "value": "@item().schema",
+                                                    "type": "Expression"
+                                                },
+                                                "TableName": {
+                                                    "value": "@item().table",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "Tables": {
+                        "type": "array",
+                        "defaultValue": [
+                            {
+                                "schema": "GLO_Salesforce",
+                                "table": "User"
+                            },
+                            {
+                                "schema": "GLO_Salesforce",
+                                "table": "Account"
+                            }
+                        ]
+                    }
+                },
+                "folder": {
+                    "name": "DataLakeScramble"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_SalesforceUser')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy SF User",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT [Id]\n      ,[Username]\n      ,[LastName]\n      ,[FirstName]\n      ,[Name]\n      ,[Department]\n      ,[Title]\n      ,[Email]\n      ,[IsActive]\n      ,[ManagerId]\n      ,[CreatedDate]\n      ,[LastModifiedDate]\n  FROM [GLO_Salesforce].[User]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "TRUNCATE TABLE [stage].[SalesforceUser];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "GLO_Salesforce",
+                                    "TableName": "User"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "SalesforceUser"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Salesforce"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_SalesforceCurrencyType')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy SF CurrencyType",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT [Id]\n      ,[IsoCode]\n      ,[ConversionRate]\n      ,[DecimalPlaces]\n      ,[IsActive]\n      ,[IsCorporate]\n      ,[CreatedDate]\n      ,[LastModifiedDate]\n  FROM [GLO_Salesforce].[CurrencyType]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "TRUNCATE TABLE [stage].[SalesforceCurrencyType];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "GLO_Salesforce",
+                                    "TableName": "CurrencyType"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "SalesforceCurrencyType"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Salesforce"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_SalesforceOpportunityFieldHistory')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy SF OppFieldHistory",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT [Id]\n      ,[IsDeleted]\n      ,[OpportunityId]\n      ,[CreatedDate]\n      ,[Field]\n      ,[OldValue]\n      ,[NewValue]\n  FROM [GLO_Salesforce].[OpportunityFieldHistory]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "TRUNCATE TABLE [stage].[SalesforceOpportunityFieldHistory];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "GLO_Salesforce",
+                                    "TableName": "OpportunityFieldHistory"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "SalesforceOpportunityFieldHistory"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Salesforce"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:18Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_SalesforceAccount')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy SF Account",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT [Id]\n      ,[IsDeleted]\n      ,[Name]\n      ,[Type]\n      ,[ParentId]\n      ,[OwnerId]\n      ,[Industry]\n      ,[Account_type__c]\n      ,[Account_Number__c]\n      ,[CreatedDate]\n      ,[LastModifiedDate]\n      ,[Data_Source__c]\n      ,[Bullhorn_Id__c]\n      ,[BillingCountryCode]\n      ,[Projectile_Customer_Code__c]\n      ,[Projectile_Customer_Number__c]\n      ,[Status__c]\n  FROM [GLO_Salesforce].[Account]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "TRUNCATE TABLE [stage].[SalesforceAccount];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "GLO_Salesforce",
+                                    "TableName": "Account"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "SalesforceAccount"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Salesforce"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:18Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_SalesforceOpportunity')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy SF Opportunity",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT [Id]\n      ,[Name]\n      ,[OwnerId]\n      ,[AccountId]\n      ,[ContractId]\n      ,[Region__c]\n      ,[StageName]\n      ,[Probability]\n      ,[CurrencyIsoCode]\n      ,[CreatedDate]\n      ,[LastModifiedDate]\n      ,[IsDeleted]\n      ,[Segment__c]\n      ,[Type_of_Services__c]\n      ,[CloseDate] = CAST([CloseDate] AS DATE)\n      ,[Project_Duration__c] = CASE WHEN ISNUMERIC([Project_Duration__c]) = 1 THEN [Project_Duration__c] ELSE NULL END\n      ,[Project_Start__c] = CAST([Project_Start__c] AS DATE)\n      ,[Opportunity_Number__c]\n      ,[Industry_Account__c]\n      ,[Delivery_Country__c]\n      ,[Actual_Deal_Closure__c]\n      ,[Is_On_Hold__c]\n      ,[RecordTypeId]\n      ,[DA_Project_Number__c]\n      ,[Project_End__c]\n      ,[Corebase_Project_ID__c]\n      ,[Opportunity_Status__c]\n      ,[Amount]\n  FROM [GLO_Salesforce].[Opportunity]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "TRUNCATE TABLE [stage].[SalesforceOpportunity];",
+                                "tableOption": "autoCreate",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "GLO_Salesforce",
+                                    "TableName": "Opportunity"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "SalesforceOpportunity"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Salesforce"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:18Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_CorebaseEmployeeData')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Corebase Employee Data",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "with cte_EmpPositions as \n(\n\tSELECT ep.[Id] -- Id Employee\n\t,ep.[EmployeeId]\n\t,ep.[StartDate]\n\t,dtt.[name] as [PositionName]\n\t,ep.[TechnologyId]\n\t,ep.[EmploymentType]\n\t,ep.[Billable]\n\t,ep.[FullTimeEquivalent]\n\t,ep.[CreatedOn]\n\t,ep.[CreatedBy]\n\t,ep.[ModifiedOn]\n\t,ep.[ModifiedBy]\n\t,ep.[DeletedOn]\n\t,ept.DepartmentId as IdDepartment\n\t,ROW_NUMBER() over (partition by ep.EmployeeId order by ep.StartDate desc) as row_id\n\tFROM [UA_CoreBase_staging_dbo].[EmployeePosition] ep\n\t\t--left join [UA_CoreBase_staging_dbo].[Position] p on p.id = ep.PositionId\n\t\tLEFT OUTER JOIN [UA_CoreBase_staging_dbo].[EmployeePositionTiers] AS ept ON ep.[Id] = ept.[EmployeePositionId]\n\t\tLEFT OUTER JOIN [UA_CoreBase_staging_dbo].[DepartmentTierTitles] AS dtt ON ept.[DepartmentTierTitleId] = dtt.[Id]\n\twhere ep.[DeletedOn] is null\n),\ncte_EmploymentHistory AS \n(\n\tSELECT \n\t\tEmployeeID,\n\t\tEndDate,\n\t\tROW_NUMBER() OVER(PARTITION by EmployeeID ORDER BY StartDate DESC) AS RowNum\n\tFROM [UA_CoreBase_staging_dbo].[EmployeeEmployment]\n)\nSELECT\n\t Email = e.[Email],\n\t FirstName = e.[FirstName], \n\t LastName = e.[LastName], \n\t FullName = e.[FullName], \n\t TechnologyName = tli.Name,\n\t TierName = dt.[Value],\n\t SeniorityName = case when dt.Value = 1 then 'Trainee' when dt.Value in (2,3) then 'Junior' when dt.Value in (4,5) then 'Middle' when dt.Value in (6,7) then 'Senior' else NULL end,\n\t CompetencyName = tli.Name,\n\t CountryName = 'Ukraine',\n\t BranchName = b.BrancheName,\n\t DepartmentName = d.DepartmentName,\n\t Gender = CASE WHEN e.[Gender] = 1 THEN 'Male' ELSE 'Female' END,\n\t IsCertified = CASE  WHEN EXISTS(SELECT 1 FROM [UA_CoreBase_staging_dbo].[EmployeeCertifications] c WHERE c.[EmployeeId] = e.Id)  THEN 'Yes' ELSE 'No'  END,\n\t StartDate = e.[StartDate],\n\t EndDate = eh.[EndDate],\n\t IsActive = e.[IsActive],\n\t ExternalId = e.[Id],\n\t EmploymentType = cast(CASE WHEN ep.[EmploymentType] = 0 THEN 'Employee' WHEN ep.[EmploymentType] = 1 THEN 'Contractor' WHEN ep.[EmploymentType] = 2 THEN 'Consultant' WHEN ep.[EmploymentType] = 3 THEN 'SupportStaff' END AS NVARCHAR(100)),\n\t HrPartnerId = e.[HrPartnerId],\n\t ManagerId = e.IdSuperior,\n\t Billable = ep.Billable,\n\t FullTimeEquivalent = ep.[FullTimeEquivalent],\n\t PositionName = SUBSTRING(ep.[PositionName], 1, 250),\n\t UserLogin = e.[UserLogin],\n\t Address = e.[Address],\n\t PhoneNumber = e.[PhoneNumber],\n\t Birthday = e.[Birthday],\n\t EmployeePositionRow_id = ep.row_id,\n\t EmployeePositionCreatedOn = ep.CreatedOn\nFROM [UA_CoreBase_staging_dbo].[Employee] e\n\tinner join cte_EmpPositions ep on e.[Id] = ep.[EmployeeId] --and ep.[row_id] = 1 /*move historical data to synapse*/\n\tleft join [UA_CoreBase_staging_dbo].[EmployeePositionTiers] ept on ept.[EmployeePositionId] = ep.[id]\n\tleft join [UA_CoreBase_staging_dbo].[DepartmentTiers] dt on dt.[id] = ept.[DepartmentTierId]\n\tleft join [UA_CoreBase_staging_dbo].[DepartmentTierTitles] dtt on dtt.[id] = dt.[TitleId]\n\tleft join [UA_CoreBase_staging_dbo].[DepartmentTierTitles] dtt1 on dtt1.[id] = ept.[DepartmentTierTitleId]\n\tleft join [UA_CoreBase_staging_dbo].[Technology] tli on tli.id = ep.[TechnologyId]\n\t--left join [UA_CoreBase_staging_dbo].[ListItem] tli on tli.id = ISNULL(ep.[TechnologyId], e.[TechnologyId]) -- this is depricated and get from the Tehnology table which above\n\tleft join [UA_CoreBase_staging_dbo].Department d on d.Id = ISNULL(ISNULL( ept.[DepartmentId], dt.[DepartmentId]),ep.IdDepartment)\n\tleft join [UA_CoreBase_staging_dbo].Branche b on b.Id = e.[IdBranch]\n\tleft join cte_EmploymentHistory eh on eh.[EmployeeID] = e.[ID] and eh.[RowNum] = 1\nWHERE  e.[Id] <> 0 and ep.[DeletedOn] is NULL -- and e.IsActive = 1",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "TRUNCATE TABLE [stage].[CorebaseEmployeeData];",
+                                "tableOption": "autoCreate",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "UA_CoreBase_staging_dbo",
+                                    "TableName": "Employee"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "CorebaseEmployeeData"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Corebase"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_CorebaseProject')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy Corebase Project",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT [Id]\n      ,[Name]\n      ,[StartDate]\n      ,[EndDate]\n      ,[Status]\n      ,[ClientId]\n      ,[DepartmentId]\n      ,[ParentId]\n      ,[Description]\n      ,[CreatedOn]\n  FROM [UA_CoreBase_staging_dbo].[Project]",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "TRUNCATE TABLE [stage].[CorebaseProject];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "UA_CoreBase_staging_dbo",
+                                    "TableName": "Project"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "CorebaseProject"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/Corebase"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:18Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ADWH_Stage_1C_InfoRg24484')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Copy 1C InfoRg24484",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "AzureSqlSource",
+                                "sqlReaderQuery": "SELECT [_Fld24485]\n      ,[_Fld24500]\n      ,[_Fld24504]\n      ,[_Fld24522]\n      ,[_Fld24526]\n      ,[_Fld24538]\n  FROM [UA_1C_staging_dbo].[_InfoRg24484]\nWHERE 1=1\nAND [_Fld24526] = N'000001001'\nAND [_Fld24489] = N'ДДО'",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "SqlDWSink",
+                                "preCopyScript": "TRUNCATE TABLE [stage].[OneCInfoRg24484];",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "DS_DL_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "UA_1C_staging_dbo",
+                                    "TableName": "_InfoRg24484"
+                                }
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "DS_ADWH_Database",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SchemaName": "stage",
+                                    "TableName": "OneCInfoRg24484"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "AnalyticsDWH/Stage/1C"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:19Z"
+            },
+            "dependsOn": []
+        }
+    ]
+}

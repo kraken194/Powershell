@@ -1,0 +1,1423 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "adf-avenga-analytics-dev"
+        },
+        "Sftp1_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'Sftp1'"
+        },
+        "Hubspot1_clientSecret": {
+            "type": "secureString",
+            "metadata": "Secure string for 'clientSecret' of 'Hubspot1'"
+        },
+        "Hubspot1_accessToken": {
+            "type": "secureString",
+            "metadata": "Secure string for 'accessToken' of 'Hubspot1'"
+        },
+        "Hubspot1_refreshToken": {
+            "type": "secureString",
+            "metadata": "Secure string for 'refreshToken' of 'Hubspot1'"
+        },
+        "IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogServerEndpoint": {
+            "type": "string",
+            "defaultValue": "sql-avenga-analytics-dev.database.windows.net"
+        },
+        "IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminUserName": {
+            "type": "string",
+            "defaultValue": "adm1n"
+        },
+        "IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminPassword": {
+            "type": "secureString"
+        },
+        "LS_AKV_AvengaAnalytics_properties_typeProperties_baseUrl": {
+            "type": "string",
+            "defaultValue": "https://kv-avenga-analytics-dev.vault.azure.net/"
+        },
+        "LS_REST_GoogleUsersList_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://www.googleapis.com/admin/directory/v1/users?customer=my_customer&maxResults=50&projection=full"
+        },
+        "Sftp1_properties_typeProperties_host": {
+            "type": "string",
+            "defaultValue": "assets.sevenval-fit.com"
+        },
+        "Sftp1_properties_typeProperties_userName": {
+            "type": "string",
+            "defaultValue": "avenga-sf-backups"
+        },
+        "Hubspot1_properties_typeProperties_clientId": {
+            "type": "string",
+            "defaultValue": "51bb9557-12f6-4175-9c5c-5f6d17e11372"
+        },
+        "LS_REST_MicrosoftGraph_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://graph.microsoft.com/"
+        },
+        "LS_REST_CoreBase_TimeOff_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://corebase.cvlabs.net/TimeOff/ExportTimeOffStatusOnDate?date=2022-12-31"
+        },
+        "Synapse-pause_properties_PL_SynapsePauseResume_parameters_KeyVaultName": {
+            "type": "string",
+            "defaultValue": "kv-avenga-analytics-dev"
+        },
+        "Synapse-pause_properties_PL_SynapsePauseResume_parameters_Action": {
+            "type": "string",
+            "defaultValue": "pause"
+        },
+        "LS_AF_AvengaAnaliticsFuncApp_properties_typeProperties_functionAppUrl": {
+            "type": "string",
+            "defaultValue": "https://func-avenga-analytics-dev.azurewebsites.net"
+        },
+        "LS_ASQL_ScrambleDataLake_properties_typeProperties_connectionString_secretName": {
+            "type": "string",
+            "defaultValue": "ScrambleDataLakeSQLConnectionString"
+        },
+        "LS_ASQL_DataLake_properties_typeProperties_connectionString_secretName": {
+            "type": "string",
+            "defaultValue": "DataLakeSQLConnectionString"
+        },
+        "LS_ASDW_AnalyticsDWH_properties_typeProperties_connectionString_secretName": {
+            "type": "string",
+            "defaultValue": "AnalyticsDWHConnectionString"
+        },
+        "LS_ASQL_ScrambleDataLakeDev_properties_typeProperties_connectionString_secretName": {
+            "type": "string",
+            "defaultValue": "ScrambleDataLakeDevSQLConnectionString"
+        },
+        "AzureDataLakeStorage1_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://dwhblobdev.dfs.core.windows.net"
+        },
+        "LS_ADLS_DataLakeDWHStorage_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://dwhblobg2dev.dfs.core.windows.net/"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/IR-SSIS-PowerBI-Refresh')]",
+            "type": "Microsoft.DataFactory/factories/integrationRuntimes",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "type": "Managed",
+                "typeProperties": {
+                    "computeProperties": {
+                        "location": "West Europe",
+                        "nodeSize": "Standard_D2_v3",
+                        "numberOfNodes": 1,
+                        "maxParallelExecutionsPerNode": 1
+                    },
+                    "ssisProperties": {
+                        "catalogInfo": {
+                            "catalogServerEndpoint": "[parameters('IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogServerEndpoint')]",
+                            "catalogAdminUserName": "[parameters('IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminUserName')]",
+                            "catalogAdminPassword": {
+                                "type": "SecureString",
+                                "value": "[parameters('IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminPassword')]"
+                            },
+                            "catalogPricingTier": "ELASTIC_POOL(name=\"epool-avenga-analytics-dev\")"
+                        },
+                        "edition": "Standard",
+                        "licenseType": "LicenseIncluded"
+                    },
+                    "customerVirtualNetwork": {
+                        "subnetId": "/subscriptions/90288df2-9d9d-4950-bc72-a4c7a04e24a3/resourceGroups/rg-internal-bi-datawarehouse-dev/providers/Microsoft.Network/virtualNetworks/rg-internal-bi-datawarehouse-dev-vnet/subnets/rg-internal-bi-datawarehouse-dev-vnet-subnet1"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_AKV_AvengaAnalytics')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureKeyVault",
+                "typeProperties": {
+                    "baseUrl": "[parameters('LS_AKV_AvengaAnalytics_properties_typeProperties_baseUrl')]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_REST_GoogleUsersList')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "RestService",
+                "typeProperties": {
+                    "url": "[parameters('LS_REST_GoogleUsersList_properties_typeProperties_url')]",
+                    "enableServerCertificateValidation": true,
+                    "authenticationType": "Anonymous"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Sftp1')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "Sftp",
+                "typeProperties": {
+                    "host": "[parameters('Sftp1_properties_typeProperties_host')]",
+                    "port": 22,
+                    "skipHostKeyValidation": true,
+                    "authenticationType": "Basic",
+                    "userName": "[parameters('Sftp1_properties_typeProperties_userName')]",
+                    "password": {
+                        "type": "SecureString",
+                        "value": "[parameters('Sftp1_password')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Hubspot1')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "Hubspot",
+                "typeProperties": {
+                    "clientId": "[parameters('Hubspot1_properties_typeProperties_clientId')]",
+                    "clientSecret": {
+                        "type": "SecureString",
+                        "value": "[parameters('Hubspot1_clientSecret')]"
+                    },
+                    "accessToken": {
+                        "type": "SecureString",
+                        "value": "[parameters('Hubspot1_accessToken')]"
+                    },
+                    "refreshToken": {
+                        "type": "SecureString",
+                        "value": "[parameters('Hubspot1_refreshToken')]"
+                    },
+                    "useEncryptedEndpoints": true,
+                    "useHostVerification": true,
+                    "usePeerVerification": true
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_REST_MicrosoftGraph')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "RestService",
+                "typeProperties": {
+                    "url": "[parameters('LS_REST_MicrosoftGraph_properties_typeProperties_url')]",
+                    "enableServerCertificateValidation": true,
+                    "authenticationType": "Anonymous"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_REST_CoreBase_TimeOff')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "RestService",
+                "typeProperties": {
+                    "url": "[parameters('LS_REST_CoreBase_TimeOff_properties_typeProperties_url')]",
+                    "enableServerCertificateValidation": true,
+                    "authenticationType": "Anonymous",
+                    "authHeaders": {
+                        "secret": {
+                            "type": "SecureString",
+                            "value": "**********"
+                        }
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_ProcessAnalysisServices')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Login",
+                        "type": "WebActivity",
+                        "dependsOn": [
+                            {
+                                "activity": "GetClientID",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "GetClientSecret",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "GetTenantId",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "GetRegion",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "GetASServerName",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": true,
+                            "secureInput": true
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://login.microsoftonline.com/',activity('GetTenantId').output.value,'/oauth2/token')",
+                                "type": "Expression"
+                            },
+                            "method": "POST",
+                            "headers": {
+                                "Content-Type": "application/x-www-form-urlencoded"
+                            },
+                            "body": {
+                                "value": "@concat('grant_type=client_credentials&resource=https://*.asazure.windows.net&client_id=',activity('GetClientID').output.value,'&client_secret=',activity('GetClientSecret').output.value)",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "GetRefreshes",
+                        "type": "WebActivity",
+                        "dependsOn": [
+                            {
+                                "activity": "StartProcessing",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://',activity('GetRegion').output.value,'.asazure.windows.net/servers/',activity('GetASServerName').output.value,'/models/',pipeline().parameters.DatabaseName,'/refreshes')",
+                                "type": "Expression"
+                            },
+                            "method": "GET",
+                            "headers": {
+                                "Authorization": {
+                                    "value": "@concat(string(activity('Login').output.token_type),' ',string(activity('Login').output.access_token))",
+                                    "type": "Expression"
+                                }
+                            },
+                            "body": {
+                                "Type": "Full",
+                                "CommitMode": "transactional",
+                                "MaxParallelism": 2,
+                                "RetryCount": 2
+                            }
+                        }
+                    },
+                    {
+                        "name": "StartProcessing",
+                        "type": "WebActivity",
+                        "dependsOn": [
+                            {
+                                "activity": "Login",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://',activity('GetRegion').output.value,'.asazure.windows.net/servers/',activity('GetASServerName').output.value,'/models/',pipeline().parameters.DatabaseName,'/refreshes')",
+                                "type": "Expression"
+                            },
+                            "method": "POST",
+                            "headers": {
+                                "Authorization": {
+                                    "value": "@concat(string(activity('Login').output.token_type),' ',string(activity('Login').output.access_token))",
+                                    "type": "Expression"
+                                }
+                            },
+                            "body": {
+                                "Type": "Full",
+                                "CommitMode": "transactional",
+                                "MaxParallelism": 2,
+                                "RetryCount": 2
+                            }
+                        }
+                    },
+                    {
+                        "name": "FilterToCurrentRefresh",
+                        "description": "Filter To Current Rfresh",
+                        "type": "Filter",
+                        "dependsOn": [
+                            {
+                                "activity": "GetRefreshes",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@json(activity('GetRefreshes').output.Response)",
+                                "type": "Expression"
+                            },
+                            "condition": {
+                                "value": "@greaterOrEquals(item().startTime,addseconds(activity('StartProcessing').output.startTime,-30))",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "UntilRefreshComplete",
+                        "type": "Until",
+                        "dependsOn": [
+                            {
+                                "activity": "FilterToCurrentRefresh",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "expression": {
+                                "value": "@not(equals(activity('GetAzureASRefreshStatus').output.status,'inProgress'))",
+                                "type": "Expression"
+                            },
+                            "activities": [
+                                {
+                                    "name": "GetAzureASRefreshStatus",
+                                    "type": "WebActivity",
+                                    "dependsOn": [
+                                        {
+                                            "activity": "Wait30Seconds",
+                                            "dependencyConditions": [
+                                                "Succeeded"
+                                            ]
+                                        }
+                                    ],
+                                    "policy": {
+                                        "timeout": "7.00:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "url": {
+                                            "value": "@concat('https://',activity('GetRegion').output.value,'.asazure.windows.net/servers/',activity('GetASServerName').output.value,'/models/',pipeline().parameters.DatabaseName,'/refreshes/',activity('FilterToCurrentRefresh').output.Value[0].refreshId)",
+                                            "type": "Expression"
+                                        },
+                                        "method": "GET",
+                                        "headers": {
+                                            "Authorization": {
+                                                "value": "@concat(string(activity('Login').output.token_type),' ',string(activity('Login').output.access_token))",
+                                                "type": "Expression"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "Wait30Seconds",
+                                    "type": "Wait",
+                                    "dependsOn": [],
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "waitTimeInSeconds": 30
+                                    }
+                                }
+                            ],
+                            "timeout": "7.00:00:00"
+                        }
+                    },
+                    {
+                        "name": "IfFailed",
+                        "type": "IfCondition",
+                        "dependsOn": [
+                            {
+                                "activity": "UntilRefreshComplete",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "expression": {
+                                "value": "@equals(activity('GetAzureASRefreshStatus').output.status,'failed')",
+                                "type": "Expression"
+                            },
+                            "ifTrueActivities": [
+                                {
+                                    "name": "ThrowErrorOnFailure",
+                                    "type": "WebActivity",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "7.00:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "url": {
+                                            "value": "@string(activity('GetAzureASRefreshStatus').output)",
+                                            "type": "Expression"
+                                        },
+                                        "method": "GET",
+                                        "headers": {}
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "GetClientSecret",
+                        "type": "WebActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": true,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://', pipeline().parameters.KeyVaultName, '.vault.azure.net/secrets/ServicePrincipalClientSecret?api-version=7.0')",
+                                "type": "Expression"
+                            },
+                            "method": "GET",
+                            "headers": {},
+                            "authentication": {
+                                "type": "MSI",
+                                "resource": "https://vault.azure.net"
+                            }
+                        }
+                    },
+                    {
+                        "name": "GetClientID",
+                        "type": "WebActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": true,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://', pipeline().parameters.KeyVaultName, '.vault.azure.net/secrets/ServicePrincipalClientID?api-version=7.0')",
+                                "type": "Expression"
+                            },
+                            "method": "GET",
+                            "headers": {},
+                            "authentication": {
+                                "type": "MSI",
+                                "resource": "https://vault.azure.net"
+                            }
+                        }
+                    },
+                    {
+                        "name": "GetTenantId",
+                        "type": "WebActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": true,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://', pipeline().parameters.KeyVaultName, '.vault.azure.net/secrets/AzureTenantId?api-version=7.0')",
+                                "type": "Expression"
+                            },
+                            "method": "GET",
+                            "headers": {},
+                            "authentication": {
+                                "type": "MSI",
+                                "resource": "https://vault.azure.net"
+                            }
+                        }
+                    },
+                    {
+                        "name": "GetRegion",
+                        "type": "WebActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": true,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://', pipeline().parameters.KeyVaultName, '.vault.azure.net/secrets/AzureRegion?api-version=7.0')",
+                                "type": "Expression"
+                            },
+                            "method": "GET",
+                            "headers": {},
+                            "authentication": {
+                                "type": "MSI",
+                                "resource": "https://vault.azure.net"
+                            }
+                        }
+                    },
+                    {
+                        "name": "GetASServerName",
+                        "type": "WebActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": true,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://', pipeline().parameters.KeyVaultName, '.vault.azure.net/secrets/AzureASServerName?api-version=7.0')",
+                                "type": "Expression"
+                            },
+                            "method": "GET",
+                            "headers": {},
+                            "authentication": {
+                                "type": "MSI",
+                                "resource": "https://vault.azure.net"
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "DatabaseName": {
+                        "type": "string",
+                        "defaultValue": "EmployeeDistribution"
+                    },
+                    "KeyVaultName": {
+                        "type": "string",
+                        "defaultValue": "kv-avenga-analytics-dev"
+                    }
+                },
+                "folder": {
+                    "name": "Azure"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:15Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_SynapsePauseResume')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Login",
+                        "type": "WebActivity",
+                        "dependsOn": [
+                            {
+                                "activity": "GetSynDatabaseName",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "GetSynServerName",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "GetResourceGroupName",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "GetSubscriptionId",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "GetTenantId",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "GetClientID",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            {
+                                "activity": "GetClientSecret",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": true,
+                            "secureInput": true
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://login.microsoftonline.com/',activity('GetTenantId').output.value,'/oauth2/token')",
+                                "type": "Expression"
+                            },
+                            "method": "POST",
+                            "headers": {
+                                "Content-Type": "application/x-www-form-urlencoded"
+                            },
+                            "body": {
+                                "value": "@concat('grant_type=client_credentials&resource=https://management.azure.com&client_id=',activity('GetClientID').output.value,'&client_secret=',activity('GetClientSecret').output.value)",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "GetClientSecret",
+                        "type": "WebActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": true,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://', pipeline().parameters.KeyVaultName, '.vault.azure.net/secrets/ServicePrincipalClientSecret?api-version=7.0')",
+                                "type": "Expression"
+                            },
+                            "method": "GET",
+                            "headers": {},
+                            "authentication": {
+                                "type": "MSI",
+                                "resource": "https://vault.azure.net"
+                            }
+                        }
+                    },
+                    {
+                        "name": "GetClientID",
+                        "type": "WebActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": true,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://', pipeline().parameters.KeyVaultName, '.vault.azure.net/secrets/ServicePrincipalClientID?api-version=7.0')",
+                                "type": "Expression"
+                            },
+                            "method": "GET",
+                            "headers": {},
+                            "authentication": {
+                                "type": "MSI",
+                                "resource": "https://vault.azure.net"
+                            }
+                        }
+                    },
+                    {
+                        "name": "GetTenantId",
+                        "type": "WebActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": true,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://', pipeline().parameters.KeyVaultName, '.vault.azure.net/secrets/AzureTenantId?api-version=7.0')",
+                                "type": "Expression"
+                            },
+                            "method": "GET",
+                            "headers": {},
+                            "authentication": {
+                                "type": "MSI",
+                                "resource": "https://vault.azure.net"
+                            }
+                        }
+                    },
+                    {
+                        "name": "GetSubscriptionId",
+                        "type": "WebActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": true,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://', pipeline().parameters.KeyVaultName, '.vault.azure.net/secrets/AzureSubscriptionId?api-version=7.0')",
+                                "type": "Expression"
+                            },
+                            "method": "GET",
+                            "headers": {},
+                            "authentication": {
+                                "type": "MSI",
+                                "resource": "https://vault.azure.net"
+                            }
+                        }
+                    },
+                    {
+                        "name": "GetResourceGroupName",
+                        "type": "WebActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": true,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://', pipeline().parameters.KeyVaultName, '.vault.azure.net/secrets/AzureResourceGroupName?api-version=7.0')",
+                                "type": "Expression"
+                            },
+                            "method": "GET",
+                            "headers": {},
+                            "authentication": {
+                                "type": "MSI",
+                                "resource": "https://vault.azure.net"
+                            }
+                        }
+                    },
+                    {
+                        "name": "GetSynServerName",
+                        "type": "WebActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": true,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://', pipeline().parameters.KeyVaultName, '.vault.azure.net/secrets/AzureSynapseServerName?api-version=7.0')",
+                                "type": "Expression"
+                            },
+                            "method": "GET",
+                            "headers": {},
+                            "authentication": {
+                                "type": "MSI",
+                                "resource": "https://vault.azure.net"
+                            }
+                        }
+                    },
+                    {
+                        "name": "GetSynDatabaseName",
+                        "type": "WebActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": true,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://', pipeline().parameters.KeyVaultName, '.vault.azure.net/secrets/AzureSynapseDatabaseName?api-version=7.0')",
+                                "type": "Expression"
+                            },
+                            "method": "GET",
+                            "headers": {},
+                            "authentication": {
+                                "type": "MSI",
+                                "resource": "https://vault.azure.net"
+                            }
+                        }
+                    },
+                    {
+                        "name": "GetDatabaseStatus",
+                        "type": "WebActivity",
+                        "dependsOn": [
+                            {
+                                "activity": "Login",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": {
+                                "value": "@concat('https://management.azure.com/subscriptions/',activity('GetSubscriptionId').output.value,'/resourceGroups/',activity('GetResourceGroupName').output.value,'/providers/Microsoft.Sql/servers/',activity('GetSynServerName').output.value,'/databases/',activity('GetSynDatabaseName').output.value,'?api-version=2014-04-01')",
+                                "type": "Expression"
+                            },
+                            "method": "GET",
+                            "headers": {
+                                "Authorization": {
+                                    "value": "@concat(string(activity('Login').output.token_type),' ',string(activity('Login').output.access_token))",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "Set DatabaseStatus",
+                        "type": "SetVariable",
+                        "dependsOn": [
+                            {
+                                "activity": "GetDatabaseStatus",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "variableName": "DatabaseStatus",
+                            "value": {
+                                "value": "@activity('GetDatabaseStatus').output.properties.status",
+                                "type": "Expression"
+                            }
+                        }
+                    },
+                    {
+                        "name": "If Pause or Resume",
+                        "type": "IfCondition",
+                        "dependsOn": [
+                            {
+                                "activity": "Set DatabaseStatus",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "expression": {
+                                "value": "@or(and(equals(variables('DatabaseStatus'), 'Paused'), equals(pipeline().parameters.Action, 'resume')), and(equals(variables('DatabaseStatus'), 'Online'), equals(pipeline().parameters.Action, 'pause')))",
+                                "type": "Expression"
+                            },
+                            "ifTrueActivities": [
+                                {
+                                    "name": "PauseResume SynapseDatabase",
+                                    "type": "WebActivity",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "7.00:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "url": {
+                                            "value": "@concat('https://management.azure.com/subscriptions/',activity('GetSubscriptionId').output.value,'/resourceGroups/',activity('GetResourceGroupName').output.value,'/providers/Microsoft.Sql/servers/',activity('GetSynServerName').output.value,'/databases/',activity('GetSynDatabaseName').output.value,'/', pipeline().parameters.Action,'?api-version=2014-04-01')",
+                                            "type": "Expression"
+                                        },
+                                        "method": "POST",
+                                        "headers": {
+                                            "Authorization": {
+                                                "value": "@concat(string(activity('Login').output.token_type),' ',string(activity('Login').output.access_token))",
+                                                "type": "Expression"
+                                            }
+                                        },
+                                        "body": {
+                                            "value": "{ }",
+                                            "type": "Expression"
+                                        }
+                                    }
+                                },
+                                {
+                                    "name": "PauseResume SynapseDatabase_copy1",
+                                    "type": "WebActivity",
+                                    "dependsOn": [
+                                        {
+                                            "activity": "PauseResume SynapseDatabase",
+                                            "dependencyConditions": [
+                                                "Failed"
+                                            ]
+                                        }
+                                    ],
+                                    "policy": {
+                                        "timeout": "7.00:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "url": {
+                                            "value": "@concat('https://management.azure.com/subscriptions/',activity('GetSubscriptionId').output.value,'/resourceGroups/',activity('GetResourceGroupName').output.value,'/providers/Microsoft.Sql/servers/',activity('GetSynServerName').output.value,'/databases/',activity('GetSynDatabaseName').output.value,'/', pipeline().parameters.Action,'?api-version=2014-04-01')",
+                                            "type": "Expression"
+                                        },
+                                        "method": "POST",
+                                        "headers": {
+                                            "Authorization": {
+                                                "value": "@concat(string(activity('Login').output.token_type),' ',string(activity('Login').output.access_token))",
+                                                "type": "Expression"
+                                            }
+                                        },
+                                        "body": {
+                                            "value": "{ }",
+                                            "type": "Expression"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "KeyVaultName": {
+                        "type": "string",
+                        "defaultValue": "kv-avenga-analytics-dev"
+                    },
+                    "Action": {
+                        "type": "string",
+                        "defaultValue": "pause"
+                    }
+                },
+                "variables": {
+                    "DatabaseStatus": {
+                        "type": "String"
+                    }
+                },
+                "folder": {
+                    "name": "Azure"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:15Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PL_SendMail')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "SendMail",
+                        "type": "WebActivity",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "url": "https://prod-60.westeurope.logic.azure.com:443/workflows/f3eea3577037413b8e5c3650a1a62977/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=z0NOxwS4UJPsX5BPu65tqFGmTU7ji7106z2STM2F59M",
+                            "method": "POST",
+                            "headers": {
+                                "Content-Type": "application/json"
+                            },
+                            "body": {
+                                "value": "{\n\"title\":\"@{pipeline().parameters.Title}\",\n\"body\":\"@{pipeline().parameters.BodyText}\",\n\"bodyHTML\":\"@{pipeline().parameters.BodyHTML}\",\n\"toAddress\":\"@{pipeline().parameters.TO_Address}\",\n\"ccAddress\":\"@{pipeline().parameters.CC_Address}\",\n\"datafactoryName\":\"@{pipeline().DataFactory}\",\n\"pipelineName\":\"@{pipeline().Pipeline}\",\n\"pipelineRunId\":\"@{pipeline().RunId}\",\n\"time\":\"@{pipeline().TriggerTime}\",\n\"color\":\"@{pipeline().parameters.Color}\"\n}",
+                                "type": "Expression"
+                            }
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "parameters": {
+                    "TO_Address": {
+                        "type": "string",
+                        "defaultValue": "roman.dovhanyk@avenga.com"
+                    },
+                    "CC_Address": {
+                        "type": "string"
+                    },
+                    "Title": {
+                        "type": "string",
+                        "defaultValue": "Test mail"
+                    },
+                    "BodyHTML": {
+                        "type": "string",
+                        "defaultValue": "<h1>Body text</h1>"
+                    },
+                    "Color": {
+                        "type": "string",
+                        "defaultValue": "Green"
+                    },
+                    "BodyText": {
+                        "type": "string",
+                        "defaultValue": "Text message"
+                    }
+                },
+                "folder": {
+                    "name": "Azure"
+                },
+                "annotations": [],
+                "lastPublishTime": "2022-06-21T14:36:15Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Synapse-pause')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "runtimeState": "Started",
+                "pipelines": [
+                    {
+                        "pipelineReference": {
+                            "referenceName": "PL_SynapsePauseResume",
+                            "type": "PipelineReference"
+                        },
+                        "parameters": {
+                            "KeyVaultName": "[parameters('Synapse-pause_properties_PL_SynapsePauseResume_parameters_KeyVaultName')]",
+                            "Action": "[parameters('Synapse-pause_properties_PL_SynapsePauseResume_parameters_Action')]"
+                        }
+                    }
+                ],
+                "type": "ScheduleTrigger",
+                "typeProperties": {
+                    "recurrence": {
+                        "frequency": "Day",
+                        "interval": 1,
+                        "startTime": "2020-08-03T18:14:00Z",
+                        "timeZone": "UTC",
+                        "schedule": {
+                            "minutes": [
+                                10
+                            ],
+                            "hours": [
+                                18,
+                                22
+                            ]
+                        }
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/PL_SynapsePauseResume')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_API_GoogleAdmin')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_REST_GoogleUsersList",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "API_URL": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "API"
+                },
+                "annotations": [],
+                "type": "RestResource",
+                "typeProperties": {
+                    "relativeUrl": {
+                        "value": "@dataset().API_URL",
+                        "type": "Expression"
+                    }
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_REST_GoogleUsersList')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DS_API_MicrosoftGraph')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "LS_REST_MicrosoftGraph",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "RelativeURL": {
+                        "type": "string"
+                    }
+                },
+                "folder": {
+                    "name": "API"
+                },
+                "annotations": [],
+                "type": "RestResource",
+                "typeProperties": {
+                    "relativeUrl": {
+                        "value": "@dataset().RelativeURL",
+                        "type": "Expression"
+                    }
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_REST_MicrosoftGraph')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_AF_AvengaAnaliticsFuncApp')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureFunction",
+                "typeProperties": {
+                    "functionAppUrl": "[parameters('LS_AF_AvengaAnaliticsFuncApp_properties_typeProperties_functionAppUrl')]",
+                    "functionKey": {
+                        "type": "AzureKeyVaultSecret",
+                        "store": {
+                            "referenceName": "LS_AKV_AvengaAnalytics",
+                            "type": "LinkedServiceReference"
+                        },
+                        "secretName": "AzureAppFunctionMasterKey"
+                    },
+                    "authentication": "Anonymous"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_ASQL_ScrambleDataLake')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureSqlDatabase",
+                "typeProperties": {
+                    "connectionString": {
+                        "type": "AzureKeyVaultSecret",
+                        "store": {
+                            "referenceName": "LS_AKV_AvengaAnalytics",
+                            "type": "LinkedServiceReference"
+                        },
+                        "secretName": "[parameters('LS_ASQL_ScrambleDataLake_properties_typeProperties_connectionString_secretName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_ASQL_DataLake')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureSqlDatabase",
+                "typeProperties": {
+                    "connectionString": {
+                        "type": "AzureKeyVaultSecret",
+                        "store": {
+                            "referenceName": "LS_AKV_AvengaAnalytics",
+                            "type": "LinkedServiceReference"
+                        },
+                        "secretName": "[parameters('LS_ASQL_DataLake_properties_typeProperties_connectionString_secretName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_ASDW_AnalyticsDWH')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureSqlDW",
+                "typeProperties": {
+                    "connectionString": {
+                        "type": "AzureKeyVaultSecret",
+                        "store": {
+                            "referenceName": "LS_AKV_AvengaAnalytics",
+                            "type": "LinkedServiceReference"
+                        },
+                        "secretName": "[parameters('LS_ASDW_AnalyticsDWH_properties_typeProperties_connectionString_secretName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_ASQL_ScrambleDataLakeDev')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureSqlDatabase",
+                "typeProperties": {
+                    "connectionString": {
+                        "type": "AzureKeyVaultSecret",
+                        "store": {
+                            "referenceName": "LS_AKV_AvengaAnalytics",
+                            "type": "LinkedServiceReference"
+                        },
+                        "secretName": "[parameters('LS_ASQL_ScrambleDataLakeDev_properties_typeProperties_connectionString_secretName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage1')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureBlobFS",
+                "typeProperties": {
+                    "url": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]",
+                    "accountKey": {
+                        "type": "AzureKeyVaultSecret",
+                        "store": {
+                            "referenceName": "LS_AKV_AvengaAnalytics",
+                            "type": "LinkedServiceReference"
+                        },
+                        "secretName": "AzureDataLakeDWHBlobStorageKey"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_ADLS_DataLakeDWHStorage')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureBlobFS",
+                "typeProperties": {
+                    "url": "[parameters('LS_ADLS_DataLakeDWHStorage_properties_typeProperties_url')]",
+                    "accountKey": {
+                        "type": "AzureKeyVaultSecret",
+                        "store": {
+                            "referenceName": "LS_AKV_AvengaAnalytics",
+                            "type": "LinkedServiceReference"
+                        },
+                        "secretName": "AzureDataLakeStorageKey"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
+            ]
+        }
+    ]
+}
