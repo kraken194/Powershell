@@ -23,14 +23,6 @@
             "type": "secureString",
             "metadata": "Secure string for 'refreshToken' of 'Hubspot1'"
         },
-        "Synapse-pause_properties_PL_SynapsePauseResume_parameters_KeyVaultName": {
-            "type": "string",
-            "defaultValue": "kv-avenga-analytics-dev"
-        },
-        "Synapse-pause_properties_PL_SynapsePauseResume_parameters_Action": {
-            "type": "string",
-            "defaultValue": "pause"
-        },
         "IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogServerEndpoint": {
             "type": "string",
             "defaultValue": "sql-avenga-analytics-dev.database.windows.net"
@@ -41,6 +33,14 @@
         },
         "IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminPassword": {
             "type": "secureString"
+        },
+        "Synapse-pause_properties_PL_SynapsePauseResume_parameters_KeyVaultName": {
+            "type": "string",
+            "defaultValue": "kv-avenga-analytics-dev"
+        },
+        "Synapse-pause_properties_PL_SynapsePauseResume_parameters_Action": {
+            "type": "string",
+            "defaultValue": "pause"
         },
         "LS_AF_AvengaAnaliticsFuncApp_properties_typeProperties_functionAppUrl": {
             "type": "string",

@@ -17,12 +17,6 @@
         "Hubspot1_refreshToken": {
             "value": ""
         },
-        "Synapse-pause_properties_PL_SynapsePauseResume_parameters_KeyVaultName": {
-            "value": "kv-avenga-analytics-dev"
-        },
-        "Synapse-pause_properties_PL_SynapsePauseResume_parameters_Action": {
-            "value": "pause"
-        },
         "IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogServerEndpoint": {
             "value": "sql-avenga-analytics-dev.database.windows.net"
         },
@@ -31,6 +25,12 @@
         },
         "IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminPassword": {
             "value": ""
+        },
+        "Synapse-pause_properties_PL_SynapsePauseResume_parameters_KeyVaultName": {
+            "value": "kv-avenga-analytics-dev"
+        },
+        "Synapse-pause_properties_PL_SynapsePauseResume_parameters_Action": {
+            "value": "pause"
         },
         "LS_AF_AvengaAnaliticsFuncApp_properties_typeProperties_functionAppUrl": {
             "value": "https://func-avenga-analytics-dev.azurewebsites.net"

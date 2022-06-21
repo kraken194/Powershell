@@ -23,14 +23,6 @@
             "type": "secureString",
             "metadata": "Secure string for 'refreshToken' of 'Hubspot1'"
         },
-        "Synapse-pause_properties_PL_SynapsePauseResume_parameters_KeyVaultName": {
-            "type": "string",
-            "defaultValue": "kv-avenga-analytics-dev"
-        },
-        "Synapse-pause_properties_PL_SynapsePauseResume_parameters_Action": {
-            "type": "string",
-            "defaultValue": "pause"
-        },
         "IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogServerEndpoint": {
             "type": "string",
             "defaultValue": "sql-avenga-analytics-dev.database.windows.net"
@@ -41,6 +33,14 @@
         },
         "IR-SSIS-PowerBI-Refresh_properties_typeProperties_ssisProperties_catalogInfo_catalogAdminPassword": {
             "type": "secureString"
+        },
+        "Synapse-pause_properties_PL_SynapsePauseResume_parameters_KeyVaultName": {
+            "type": "string",
+            "defaultValue": "kv-avenga-analytics-dev"
+        },
+        "Synapse-pause_properties_PL_SynapsePauseResume_parameters_Action": {
+            "type": "string",
+            "defaultValue": "pause"
         },
         "LS_AF_AvengaAnaliticsFuncApp_properties_typeProperties_functionAppUrl": {
             "type": "string",
@@ -103,127 +103,6 @@
         "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
     },
     "resources": [
-        {
-            "name": "[concat(parameters('factoryName'), '/TriggerADWHMainProcess')]",
-            "type": "Microsoft.DataFactory/factories/triggers",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "annotations": [],
-                "runtimeState": "Started",
-                "pipelines": [
-                    {
-                        "pipelineReference": {
-                            "referenceName": "PL_ADWH_ResumePauseProcess",
-                            "type": "PipelineReference"
-                        },
-                        "parameters": {}
-                    }
-                ],
-                "type": "ScheduleTrigger",
-                "typeProperties": {
-                    "recurrence": {
-                        "frequency": "Day",
-                        "interval": 1,
-                        "startTime": "2020-07-31T14:36:00Z",
-                        "timeZone": "UTC",
-                        "schedule": {
-                            "minutes": [
-                                0
-                            ],
-                            "hours": [
-                                7
-                            ]
-                        }
-                    }
-                }
-            },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/pipelines/PL_ADWH_ResumePauseProcess')]"
-            ]
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/Synapse-pause')]",
-            "type": "Microsoft.DataFactory/factories/triggers",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "annotations": [],
-                "runtimeState": "Started",
-                "pipelines": [
-                    {
-                        "pipelineReference": {
-                            "referenceName": "PL_SynapsePauseResume",
-                            "type": "PipelineReference"
-                        },
-                        "parameters": {
-                            "KeyVaultName": "[parameters('Synapse-pause_properties_PL_SynapsePauseResume_parameters_KeyVaultName')]",
-                            "Action": "[parameters('Synapse-pause_properties_PL_SynapsePauseResume_parameters_Action')]"
-                        }
-                    }
-                ],
-                "type": "ScheduleTrigger",
-                "typeProperties": {
-                    "recurrence": {
-                        "frequency": "Day",
-                        "interval": 1,
-                        "startTime": "2020-08-03T18:14:00Z",
-                        "timeZone": "UTC",
-                        "schedule": {
-                            "minutes": [
-                                10
-                            ],
-                            "hours": [
-                                18,
-                                22
-                            ]
-                        }
-                    }
-                }
-            },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/pipelines/PL_SynapsePauseResume')]"
-            ]
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/TriggerScrambleDevProcess')]",
-            "type": "Microsoft.DataFactory/factories/triggers",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "annotations": [],
-                "runtimeState": "Stopped",
-                "pipelines": [
-                    {
-                        "pipelineReference": {
-                            "referenceName": "PL_DLS_Process",
-                            "type": "PipelineReference"
-                        },
-                        "parameters": {}
-                    }
-                ],
-                "type": "ScheduleTrigger",
-                "typeProperties": {
-                    "recurrence": {
-                        "frequency": "Week",
-                        "interval": 1,
-                        "startTime": "2020-09-01T14:34:00Z",
-                        "timeZone": "UTC",
-                        "schedule": {
-                            "minutes": [
-                                0
-                            ],
-                            "hours": [
-                                0
-                            ],
-                            "weekDays": [
-                                "Monday"
-                            ]
-                        }
-                    }
-                }
-            },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/pipelines/PL_DLS_Process')]"
-            ]
-        },
         {
             "name": "[concat(parameters('factoryName'), '/IR-SSIS-PowerBI-Refresh')]",
             "type": "Microsoft.DataFactory/factories/integrationRuntimes",
@@ -570,275 +449,125 @@
             ]
         },
         {
-            "name": "[concat(parameters('factoryName'), '/LS_AF_AvengaAnaliticsFuncApp')]",
-            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "name": "[concat(parameters('factoryName'), '/TriggerADWHMainProcess')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
             "apiVersion": "2018-06-01",
             "properties": {
                 "annotations": [],
-                "type": "AzureFunction",
-                "typeProperties": {
-                    "functionAppUrl": "[parameters('LS_AF_AvengaAnaliticsFuncApp_properties_typeProperties_functionAppUrl')]",
-                    "functionKey": {
-                        "type": "AzureKeyVaultSecret",
-                        "store": {
-                            "referenceName": "LS_AKV_AvengaAnalytics",
-                            "type": "LinkedServiceReference"
+                "runtimeState": "Started",
+                "pipelines": [
+                    {
+                        "pipelineReference": {
+                            "referenceName": "PL_ADWH_ResumePauseProcess",
+                            "type": "PipelineReference"
                         },
-                        "secretName": "AzureAppFunctionMasterKey"
-                    },
-                    "authentication": "Anonymous"
-                }
-            },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
-            ]
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/LS_AKV_AvengaAnalytics')]",
-            "type": "Microsoft.DataFactory/factories/linkedServices",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "annotations": [],
-                "type": "AzureKeyVault",
-                "typeProperties": {
-                    "baseUrl": "[parameters('LS_AKV_AvengaAnalytics_properties_typeProperties_baseUrl')]"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/LS_REST_GoogleUsersList')]",
-            "type": "Microsoft.DataFactory/factories/linkedServices",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "annotations": [],
-                "type": "RestService",
-                "typeProperties": {
-                    "url": "[parameters('LS_REST_GoogleUsersList_properties_typeProperties_url')]",
-                    "enableServerCertificateValidation": true,
-                    "authenticationType": "Anonymous"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/LS_ASQL_ScrambleDataLake')]",
-            "type": "Microsoft.DataFactory/factories/linkedServices",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "annotations": [],
-                "type": "AzureSqlDatabase",
-                "typeProperties": {
-                    "connectionString": {
-                        "type": "AzureKeyVaultSecret",
-                        "store": {
-                            "referenceName": "LS_AKV_AvengaAnalytics",
-                            "type": "LinkedServiceReference"
-                        },
-                        "secretName": "[parameters('LS_ASQL_ScrambleDataLake_properties_typeProperties_connectionString_secretName')]"
+                        "parameters": {}
                     }
-                }
-            },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
-            ]
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/LS_ASQL_DataLake')]",
-            "type": "Microsoft.DataFactory/factories/linkedServices",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "annotations": [],
-                "type": "AzureSqlDatabase",
+                ],
+                "type": "ScheduleTrigger",
                 "typeProperties": {
-                    "connectionString": {
-                        "type": "AzureKeyVaultSecret",
-                        "store": {
-                            "referenceName": "LS_AKV_AvengaAnalytics",
-                            "type": "LinkedServiceReference"
-                        },
-                        "secretName": "[parameters('LS_ASQL_DataLake_properties_typeProperties_connectionString_secretName')]"
-                    }
-                }
-            },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
-            ]
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/LS_ASDW_AnalyticsDWH')]",
-            "type": "Microsoft.DataFactory/factories/linkedServices",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "annotations": [],
-                "type": "AzureSqlDW",
-                "typeProperties": {
-                    "connectionString": {
-                        "type": "AzureKeyVaultSecret",
-                        "store": {
-                            "referenceName": "LS_AKV_AvengaAnalytics",
-                            "type": "LinkedServiceReference"
-                        },
-                        "secretName": "[parameters('LS_ASDW_AnalyticsDWH_properties_typeProperties_connectionString_secretName')]"
-                    }
-                }
-            },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
-            ]
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/LS_ASQL_ScrambleDataLakeDev')]",
-            "type": "Microsoft.DataFactory/factories/linkedServices",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "annotations": [],
-                "type": "AzureSqlDatabase",
-                "typeProperties": {
-                    "connectionString": {
-                        "type": "AzureKeyVaultSecret",
-                        "store": {
-                            "referenceName": "LS_AKV_AvengaAnalytics",
-                            "type": "LinkedServiceReference"
-                        },
-                        "secretName": "[parameters('LS_ASQL_ScrambleDataLakeDev_properties_typeProperties_connectionString_secretName')]"
-                    }
-                }
-            },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
-            ]
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/Sftp1')]",
-            "type": "Microsoft.DataFactory/factories/linkedServices",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "annotations": [],
-                "type": "Sftp",
-                "typeProperties": {
-                    "host": "[parameters('Sftp1_properties_typeProperties_host')]",
-                    "port": 22,
-                    "skipHostKeyValidation": true,
-                    "authenticationType": "Basic",
-                    "userName": "[parameters('Sftp1_properties_typeProperties_userName')]",
-                    "password": {
-                        "type": "SecureString",
-                        "value": "[parameters('Sftp1_password')]"
-                    }
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage1')]",
-            "type": "Microsoft.DataFactory/factories/linkedServices",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "annotations": [],
-                "type": "AzureBlobFS",
-                "typeProperties": {
-                    "url": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]",
-                    "accountKey": {
-                        "type": "AzureKeyVaultSecret",
-                        "store": {
-                            "referenceName": "LS_AKV_AvengaAnalytics",
-                            "type": "LinkedServiceReference"
-                        },
-                        "secretName": "AzureDataLakeDWHBlobStorageKey"
-                    }
-                }
-            },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
-            ]
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/Hubspot1')]",
-            "type": "Microsoft.DataFactory/factories/linkedServices",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "annotations": [],
-                "type": "Hubspot",
-                "typeProperties": {
-                    "clientId": "[parameters('Hubspot1_properties_typeProperties_clientId')]",
-                    "clientSecret": {
-                        "type": "SecureString",
-                        "value": "[parameters('Hubspot1_clientSecret')]"
-                    },
-                    "accessToken": {
-                        "type": "SecureString",
-                        "value": "[parameters('Hubspot1_accessToken')]"
-                    },
-                    "refreshToken": {
-                        "type": "SecureString",
-                        "value": "[parameters('Hubspot1_refreshToken')]"
-                    },
-                    "useEncryptedEndpoints": true,
-                    "useHostVerification": true,
-                    "usePeerVerification": true
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/LS_REST_MicrosoftGraph')]",
-            "type": "Microsoft.DataFactory/factories/linkedServices",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "annotations": [],
-                "type": "RestService",
-                "typeProperties": {
-                    "url": "[parameters('LS_REST_MicrosoftGraph_properties_typeProperties_url')]",
-                    "enableServerCertificateValidation": true,
-                    "authenticationType": "Anonymous"
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/LS_ADLS_DataLakeDWHStorage')]",
-            "type": "Microsoft.DataFactory/factories/linkedServices",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "annotations": [],
-                "type": "AzureBlobFS",
-                "typeProperties": {
-                    "url": "[parameters('LS_ADLS_DataLakeDWHStorage_properties_typeProperties_url')]",
-                    "accountKey": {
-                        "type": "AzureKeyVaultSecret",
-                        "store": {
-                            "referenceName": "LS_AKV_AvengaAnalytics",
-                            "type": "LinkedServiceReference"
-                        },
-                        "secretName": "AzureDataLakeStorageKey"
-                    }
-                }
-            },
-            "dependsOn": [
-                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
-            ]
-        },
-        {
-            "name": "[concat(parameters('factoryName'), '/LS_REST_CoreBase_TimeOff')]",
-            "type": "Microsoft.DataFactory/factories/linkedServices",
-            "apiVersion": "2018-06-01",
-            "properties": {
-                "annotations": [],
-                "type": "RestService",
-                "typeProperties": {
-                    "url": "[parameters('LS_REST_CoreBase_TimeOff_properties_typeProperties_url')]",
-                    "enableServerCertificateValidation": true,
-                    "authenticationType": "Anonymous",
-                    "authHeaders": {
-                        "secret": {
-                            "type": "SecureString",
-                            "value": "**********"
+                    "recurrence": {
+                        "frequency": "Day",
+                        "interval": 1,
+                        "startTime": "2020-07-31T14:36:00Z",
+                        "timeZone": "UTC",
+                        "schedule": {
+                            "minutes": [
+                                0
+                            ],
+                            "hours": [
+                                7
+                            ]
                         }
                     }
                 }
             },
-            "dependsOn": []
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/PL_ADWH_ResumePauseProcess')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Synapse-pause')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "runtimeState": "Started",
+                "pipelines": [
+                    {
+                        "pipelineReference": {
+                            "referenceName": "PL_SynapsePauseResume",
+                            "type": "PipelineReference"
+                        },
+                        "parameters": {
+                            "KeyVaultName": "[parameters('Synapse-pause_properties_PL_SynapsePauseResume_parameters_KeyVaultName')]",
+                            "Action": "[parameters('Synapse-pause_properties_PL_SynapsePauseResume_parameters_Action')]"
+                        }
+                    }
+                ],
+                "type": "ScheduleTrigger",
+                "typeProperties": {
+                    "recurrence": {
+                        "frequency": "Day",
+                        "interval": 1,
+                        "startTime": "2020-08-03T18:14:00Z",
+                        "timeZone": "UTC",
+                        "schedule": {
+                            "minutes": [
+                                10
+                            ],
+                            "hours": [
+                                18,
+                                22
+                            ]
+                        }
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/PL_SynapsePauseResume')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/TriggerScrambleDevProcess')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "runtimeState": "Stopped",
+                "pipelines": [
+                    {
+                        "pipelineReference": {
+                            "referenceName": "PL_DLS_Process",
+                            "type": "PipelineReference"
+                        },
+                        "parameters": {}
+                    }
+                ],
+                "type": "ScheduleTrigger",
+                "typeProperties": {
+                    "recurrence": {
+                        "frequency": "Week",
+                        "interval": 1,
+                        "startTime": "2020-09-01T14:34:00Z",
+                        "timeZone": "UTC",
+                        "schedule": {
+                            "minutes": [
+                                0
+                            ],
+                            "hours": [
+                                0
+                            ],
+                            "weekDays": [
+                                "Monday"
+                            ]
+                        }
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/pipelines/PL_DLS_Process')]"
+            ]
         },
         {
             "name": "[concat(parameters('factoryName'), '/PL_ProcessAnalysisServices')]",
@@ -1256,7 +985,7 @@
                     "name": "Azure"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:15Z"
+                "lastPublishTime": "2022-05-18T10:09:21Z"
             },
             "dependsOn": []
         },
@@ -1666,7 +1395,7 @@
                     "name": "AnalyticsDWH/Stage/GSuite"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -1929,7 +1658,7 @@
                     "name": "DataLake"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_AF_AvengaAnaliticsFuncApp')]",
@@ -2011,7 +1740,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:22Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]",
@@ -2080,7 +1809,7 @@
                     "name": "DataLakeScramble/Google"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -3217,7 +2946,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:24Z"
+                "lastPublishTime": "2022-05-18T10:09:28Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_ADWH_Dim_Employee')]",
@@ -3667,7 +3396,7 @@
                     "name": "Azure"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:15Z"
+                "lastPublishTime": "2022-05-18T10:09:21Z"
             },
             "dependsOn": []
         },
@@ -3820,7 +3549,7 @@
                     "name": "DataLakeScramble"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -3941,7 +3670,7 @@
                     "name": "DataLakeScramble"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -4010,7 +3739,7 @@
                     "name": "AnalyticsDWH/Stage/Salesforce"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -4079,7 +3808,7 @@
                     "name": "AnalyticsDWH/Stage/Salesforce"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -4148,7 +3877,7 @@
                     "name": "AnalyticsDWH/Stage/Salesforce"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -4217,7 +3946,7 @@
                     "name": "AnalyticsDWH/Stage/Salesforce"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -4277,7 +4006,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -4344,7 +4073,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -4443,7 +4172,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -4512,7 +4241,7 @@
                     "name": "AnalyticsDWH/Stage/Salesforce"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -4572,7 +4301,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -4642,7 +4371,7 @@
                     "name": "Azure"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:15Z"
+                "lastPublishTime": "2022-05-18T10:09:21Z"
             },
             "dependsOn": []
         },
@@ -4881,7 +4610,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:25Z"
+                "lastPublishTime": "2022-05-18T10:09:29Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_ADWH_Process')]",
@@ -5999,7 +5728,7 @@
                     "name": "DataLakeScramble"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:23Z"
+                "lastPublishTime": "2022-05-24T10:49:04Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_DLS_RefreshDatabaseSchema')]",
@@ -6079,7 +5808,7 @@
                     "name": "AnalyticsDWH/Stage/Corebase"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-06-03T16:27:29Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -6148,7 +5877,7 @@
                     "name": "AnalyticsDWH/Stage/Corebase"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -6217,7 +5946,7 @@
                     "name": "AnalyticsDWH/Stage/1C"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -6273,7 +6002,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -6332,7 +6061,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -6459,7 +6188,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -6514,7 +6243,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -6569,7 +6298,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -6638,7 +6367,7 @@
                     "name": "DataLakeScramble/Datev"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -6822,7 +6551,7 @@
                     "name": "DataLakeScramble"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -6953,7 +6682,7 @@
                     "name": "AnalyticsDWH/Stage"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -7022,7 +6751,7 @@
                     "name": "DataLakeScramble/Projectile"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -7091,7 +6820,7 @@
                     "name": "DataLakeScramble/Salesforce"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -7160,7 +6889,7 @@
                     "name": "DataLakeScramble/Corebase"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -7230,7 +6959,7 @@
                     "name": "DataLakeScramble/Salesforce"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -7429,7 +7158,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:23Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_ADWH_Database')]",
@@ -7498,7 +7227,7 @@
                     "name": "DataLakeScramble/Salesforce"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -7567,7 +7296,7 @@
                     "name": "DataLakeScramble/Corebase"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -7636,7 +7365,7 @@
                     "name": "DataLakeScramble/Salesforce"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -7705,7 +7434,7 @@
                     "name": "AnalyticsDWH/Stage/Salesforce"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -7782,7 +7511,7 @@
                     "name": "AnalyticsDWH/Stage/Bullhorn"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -7859,7 +7588,7 @@
                     "name": "AnalyticsDWH/Stage/Projecttile"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -7936,7 +7665,7 @@
                     "name": "AnalyticsDWH/Stage/Projecttile"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -8013,7 +7742,7 @@
                     "name": "AnalyticsDWH/Stage/Bullhorn"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -8090,7 +7819,7 @@
                     "name": "AnalyticsDWH/Stage/Bullhorn"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -8167,7 +7896,7 @@
                     "name": "AnalyticsDWH/Stage/Bullhorn"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:23Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -8244,7 +7973,7 @@
                     "name": "AnalyticsDWH/Stage/Bullhorn"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -8321,7 +8050,7 @@
                     "name": "AnalyticsDWH/Stage/Bullhorn"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -8398,7 +8127,7 @@
                     "name": "AnalyticsDWH/Stage/Bullhorn"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:23Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -8475,7 +8204,7 @@
                     "name": "AnalyticsDWH/Stage/Bullhorn"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -8552,7 +8281,7 @@
                     "name": "AnalyticsDWH/Stage/Projecttile"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:23Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -8686,7 +8415,7 @@
                     "name": "AnalyticsDWH/Stage/Bullhorn"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:21Z"
+                "lastPublishTime": "2022-05-18T10:09:26Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_ADWH_Stage_BullhornClientCorporation')]",
@@ -8769,7 +8498,7 @@
                     "name": "AnalyticsDWH/Stage/Projecttile"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -8861,7 +8590,7 @@
                     "name": "AnalyticsDWH/Stage/Projecttile"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:21Z"
+                "lastPublishTime": "2022-05-18T10:09:26Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_ADWH_Stage_Projectile_TimeBit')]",
@@ -8941,7 +8670,7 @@
                     "name": "DataLakeScramble/Projectile"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -9010,7 +8739,7 @@
                     "name": "DataLakeScramble/BambooHR"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -9079,7 +8808,7 @@
                     "name": "DataLakeScramble/BambooHR"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -9148,7 +8877,7 @@
                     "name": "DataLakeScramble/BambooHR"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -9217,7 +8946,7 @@
                     "name": "DataLakeScramble/Corebase"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -9286,7 +9015,7 @@
                     "name": "DataLakeScramble/Salesforce"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -9393,7 +9122,7 @@
                     "name": "AnalyticsDWH/Stage"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-24T11:14:41Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -9463,7 +9192,7 @@
                     "name": "DataLakeScramble/Datev"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -9533,7 +9262,7 @@
                     "name": "DataLakeScramble/Datev"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -9611,7 +9340,7 @@
                     "name": "DataLakeScramble/Datev"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:21Z"
+                "lastPublishTime": "2022-05-18T10:09:26Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_DLS_ScrambleExportDATARAW2020DE')]",
@@ -9681,7 +9410,7 @@
                     "name": "DataLakeScramble/Google"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -9759,7 +9488,7 @@
                     "name": "DataLakeScramble/Google"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_DLS_GoogleUsers')]",
@@ -10208,7 +9937,7 @@
                     "name": "DataLake"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_AF_AvengaAnaliticsFuncApp')]",
@@ -10286,7 +10015,7 @@
                     "name": "DataLakeScramble/Bullhorn"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -10363,7 +10092,7 @@
                     "name": "AnalyticsDWH/Stage/Projecttile"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -10432,7 +10161,7 @@
                     "name": "DataLakeScramble/Projectile"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -10501,7 +10230,7 @@
                     "name": "DataLakeScramble/Projectile"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -10579,7 +10308,7 @@
                     "name": "DataLakeScramble/Projectile"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:21Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_DLS_ScrambleAuser')]",
@@ -10645,7 +10374,7 @@
                     "name": "AnalyticsDWH/Stage/ManualInput"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:21Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_ADWH_Stage_MIBullhornCustomerMapping')]",
@@ -10767,7 +10496,7 @@
                     "name": "AnalyticsDWH/Stage/Corebase"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -11237,7 +10966,7 @@
                     "name": "AnalyticsDWH/Export/GoogleSheets"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:23Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_AF_AvengaAnaliticsFuncApp')]",
@@ -11343,7 +11072,7 @@
                     "name": "AnalyticsDWH/Stage/Salesforce"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:21Z"
+                "lastPublishTime": "2022-05-18T10:09:26Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_ADWH_Stage_SalesforceAccount')]",
@@ -11562,7 +11291,7 @@
                     "name": "AnalyticsDWH/Stage/Corebase"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:21Z"
+                "lastPublishTime": "2022-05-18T10:09:26Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_ADWH_Stage_CorebaseProject')]",
@@ -11634,7 +11363,7 @@
                     "name": "AnalyticsDWH/Stage/Asseco"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -11670,7 +11399,7 @@
                     "name": "AnalyticsDWH/Stage/1C"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_ADWH_Stage_1C_InfoRg24484')]"
@@ -11743,7 +11472,7 @@
                     "name": "AnalyticsDWH/Stage/GSuite"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:21Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_ADWH_Stage_GoogleUsers')]",
@@ -11779,7 +11508,7 @@
                     "name": "AnalyticsDWH/Stage/Asseco"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:21Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_ADWH_Stage_Asseco_wusr_TBL_ObrotyWKNew')]"
@@ -11895,7 +11624,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_ADWH_Fact_ProjectForecast')]",
@@ -12066,7 +11795,7 @@
                     "name": "DataLakeScramble/BambooHR"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:21Z"
+                "lastPublishTime": "2022-05-24T10:49:04Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_DLS_ScrambleAITPEmployee')]",
@@ -12140,7 +11869,7 @@
                     "name": "DataLakeScramble/Salesforce"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:21Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -12280,7 +12009,7 @@
                     "name": "DataLakeScramble/Corebase"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:21Z"
+                "lastPublishTime": "2022-05-18T10:09:26Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_DLS_ScrambleCorebaseClient')]",
@@ -12453,7 +12182,7 @@
                     "name": "DataLakeScramble/Salesforce"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:22Z"
+                "lastPublishTime": "2022-05-18T10:09:26Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_DLS_ScrambleSalesforceUser')]",
@@ -12527,7 +12256,7 @@
                     "name": "DataLakeScramble/AzureAD"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -13300,7 +13029,7 @@
                     "name": "DataLake"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:23Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_API_MicrosoftGraph')]",
@@ -13336,7 +13065,7 @@
                     "name": "DataLakeScramble/AzureAD"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:21Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_DLS_AzureADGroupMembers')]"
@@ -13574,7 +13303,7 @@
                     "name": "AnalyticsDWH/Stage/ManualInput"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:23Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_ADLS_CSVFile')]",
@@ -14113,7 +13842,7 @@
                     "name": "AnalyticsDWH/Stage/ManualInput"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:23Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_ADLS_CSVFile')]",
@@ -14182,7 +13911,7 @@
                     "name": "AnalyticsDWH/Stage/Salesforce"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -14416,7 +14145,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:21Z"
+                "lastPublishTime": "2022-05-18T10:09:26Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_SynapsePauseResume')]",
@@ -14487,7 +14216,7 @@
                     "name": "DataLakeScramble/Salesforce"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -14567,7 +14296,7 @@
                     "name": "AnalyticsDWH/Export/AzureStorage"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:21Z"
+                "lastPublishTime": "2022-05-18T10:09:23Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_ADWH_Database')]",
@@ -14636,7 +14365,7 @@
                     "name": "DataLakeScramble/1C"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:21Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -14705,7 +14434,7 @@
                     "name": "DataLakeScramble/1C"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -14762,7 +14491,7 @@
                     "name": "DataLakeScramble/1C"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:22Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_DLS_Scramble1C_InfoRg24484')]",
@@ -14831,7 +14560,7 @@
                     "name": "DataLakeScramble/BambooHR"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -14900,7 +14629,7 @@
                     "name": "DataLakeScramble/BambooHR"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -14969,7 +14698,7 @@
                     "name": "DataLakeScramble/BambooHR"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-31T16:07:44Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -15029,7 +14758,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -15128,7 +14857,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-31T08:51:03Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -15248,7 +14977,7 @@
                     "name": "AnalyticsDWH/Stage/Corebase"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -15304,7 +15033,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -15419,7 +15148,7 @@
                     "name": "AnalyticsDWH/Stage"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DL_Database')]",
@@ -15489,7 +15218,7 @@
                     "name": "DataLakeScramble/Google"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -15545,7 +15274,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -16187,7 +15916,7 @@
                     "name": "DataLake"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_AF_AvengaAnaliticsFuncApp')]",
@@ -16245,7 +15974,7 @@
                     "name": "DataLake"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:26Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_DLS_GoogleUsers')]",
@@ -16314,7 +16043,7 @@
                     "name": "DataLakeScramble/Corebase"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -16374,7 +16103,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -16442,7 +16171,7 @@
                     "name": "DataLakeScramble/Corebase"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-18T10:09:24Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -16498,7 +16227,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -16553,7 +16282,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -16608,7 +16337,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -16676,7 +16405,7 @@
                     "name": "DataLakeScramble/Corebase"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:19Z"
+                "lastPublishTime": "2022-05-18T10:09:25Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
@@ -16732,7 +16461,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -17020,7 +16749,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:22Z"
+                "lastPublishTime": "2022-05-24T10:49:03Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/pipelines/PL_ADWH_Stage_Bullhorn_AllTables')]",
@@ -17083,7 +16812,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -17138,7 +16867,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:17Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -17463,7 +17192,7 @@
                     "name": "AnalyticsDWH/Stage/ManualInput"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:20Z"
+                "lastPublishTime": "2022-05-18T10:09:23Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_ADLS_CSVFile')]",
@@ -17519,7 +17248,7 @@
                     "name": "AnalyticsDWH"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:16Z"
+                "lastPublishTime": "2022-05-18T10:09:22Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/linkedServices/LS_ASDW_AnalyticsDWH')]"
@@ -17589,12 +17318,283 @@
                     "name": "DataLakeScramble/BambooHR"
                 },
                 "annotations": [],
-                "lastPublishTime": "2022-06-21T14:36:18Z"
+                "lastPublishTime": "2022-05-24T10:49:03Z"
             },
             "dependsOn": [
                 "[concat(variables('factoryId'), '/datasets/DS_DLS_DatalakeRep')]",
                 "[concat(variables('factoryId'), '/datasets/DS_DLD_DatalakeDev')]"
             ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_AF_AvengaAnaliticsFuncApp')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureFunction",
+                "typeProperties": {
+                    "functionAppUrl": "[parameters('LS_AF_AvengaAnaliticsFuncApp_properties_typeProperties_functionAppUrl')]",
+                    "functionKey": {
+                        "type": "AzureKeyVaultSecret",
+                        "store": {
+                            "referenceName": "LS_AKV_AvengaAnalytics",
+                            "type": "LinkedServiceReference"
+                        },
+                        "secretName": "AzureAppFunctionMasterKey"
+                    },
+                    "authentication": "Anonymous"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_AKV_AvengaAnalytics')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureKeyVault",
+                "typeProperties": {
+                    "baseUrl": "[parameters('LS_AKV_AvengaAnalytics_properties_typeProperties_baseUrl')]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_REST_GoogleUsersList')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "RestService",
+                "typeProperties": {
+                    "url": "[parameters('LS_REST_GoogleUsersList_properties_typeProperties_url')]",
+                    "enableServerCertificateValidation": true,
+                    "authenticationType": "Anonymous"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_ASQL_ScrambleDataLake')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureSqlDatabase",
+                "typeProperties": {
+                    "connectionString": {
+                        "type": "AzureKeyVaultSecret",
+                        "store": {
+                            "referenceName": "LS_AKV_AvengaAnalytics",
+                            "type": "LinkedServiceReference"
+                        },
+                        "secretName": "[parameters('LS_ASQL_ScrambleDataLake_properties_typeProperties_connectionString_secretName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_ASQL_DataLake')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureSqlDatabase",
+                "typeProperties": {
+                    "connectionString": {
+                        "type": "AzureKeyVaultSecret",
+                        "store": {
+                            "referenceName": "LS_AKV_AvengaAnalytics",
+                            "type": "LinkedServiceReference"
+                        },
+                        "secretName": "[parameters('LS_ASQL_DataLake_properties_typeProperties_connectionString_secretName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_ASDW_AnalyticsDWH')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureSqlDW",
+                "typeProperties": {
+                    "connectionString": {
+                        "type": "AzureKeyVaultSecret",
+                        "store": {
+                            "referenceName": "LS_AKV_AvengaAnalytics",
+                            "type": "LinkedServiceReference"
+                        },
+                        "secretName": "[parameters('LS_ASDW_AnalyticsDWH_properties_typeProperties_connectionString_secretName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_ASQL_ScrambleDataLakeDev')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureSqlDatabase",
+                "typeProperties": {
+                    "connectionString": {
+                        "type": "AzureKeyVaultSecret",
+                        "store": {
+                            "referenceName": "LS_AKV_AvengaAnalytics",
+                            "type": "LinkedServiceReference"
+                        },
+                        "secretName": "[parameters('LS_ASQL_ScrambleDataLakeDev_properties_typeProperties_connectionString_secretName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Sftp1')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "Sftp",
+                "typeProperties": {
+                    "host": "[parameters('Sftp1_properties_typeProperties_host')]",
+                    "port": 22,
+                    "skipHostKeyValidation": true,
+                    "authenticationType": "Basic",
+                    "userName": "[parameters('Sftp1_properties_typeProperties_userName')]",
+                    "password": {
+                        "type": "SecureString",
+                        "value": "[parameters('Sftp1_password')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage1')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureBlobFS",
+                "typeProperties": {
+                    "url": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]",
+                    "accountKey": {
+                        "type": "AzureKeyVaultSecret",
+                        "store": {
+                            "referenceName": "LS_AKV_AvengaAnalytics",
+                            "type": "LinkedServiceReference"
+                        },
+                        "secretName": "AzureDataLakeDWHBlobStorageKey"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Hubspot1')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "Hubspot",
+                "typeProperties": {
+                    "clientId": "[parameters('Hubspot1_properties_typeProperties_clientId')]",
+                    "clientSecret": {
+                        "type": "SecureString",
+                        "value": "[parameters('Hubspot1_clientSecret')]"
+                    },
+                    "accessToken": {
+                        "type": "SecureString",
+                        "value": "[parameters('Hubspot1_accessToken')]"
+                    },
+                    "refreshToken": {
+                        "type": "SecureString",
+                        "value": "[parameters('Hubspot1_refreshToken')]"
+                    },
+                    "useEncryptedEndpoints": true,
+                    "useHostVerification": true,
+                    "usePeerVerification": true
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_REST_MicrosoftGraph')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "RestService",
+                "typeProperties": {
+                    "url": "[parameters('LS_REST_MicrosoftGraph_properties_typeProperties_url')]",
+                    "enableServerCertificateValidation": true,
+                    "authenticationType": "Anonymous"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_ADLS_DataLakeDWHStorage')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureBlobFS",
+                "typeProperties": {
+                    "url": "[parameters('LS_ADLS_DataLakeDWHStorage_properties_typeProperties_url')]",
+                    "accountKey": {
+                        "type": "AzureKeyVaultSecret",
+                        "store": {
+                            "referenceName": "LS_AKV_AvengaAnalytics",
+                            "type": "LinkedServiceReference"
+                        },
+                        "secretName": "AzureDataLakeStorageKey"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/LS_AKV_AvengaAnalytics')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/LS_REST_CoreBase_TimeOff')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "RestService",
+                "typeProperties": {
+                    "url": "[parameters('LS_REST_CoreBase_TimeOff_properties_typeProperties_url')]",
+                    "enableServerCertificateValidation": true,
+                    "authenticationType": "Anonymous",
+                    "authHeaders": {
+                        "secret": {
+                            "type": "SecureString",
+                            "value": "**********"
+                        }
+                    }
+                }
+            },
+            "dependsOn": []
         }
     ]
 }
